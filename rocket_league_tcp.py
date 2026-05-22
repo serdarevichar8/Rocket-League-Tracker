@@ -1,5 +1,6 @@
 import socket
 import json
+import csv
 import time
 from datetime import datetime
 
@@ -7,15 +8,25 @@ HOST = "127.0.0.1"
 PORT = 49123
 BUFFER_SIZE = 4096
 
-TRACKED_EVENTS = [
+TRACKED_EVENTS = {
     'MatchInitialized',
     'MatchEnded',
     'StatfeedEvent'
-]
+}
+
+TRACKED_EVENT_NAMES = {
+    'Assist',
+    'Demolish',
+    'EpicSave',
+    'Goal',
+    'OvertimeGoal',
+    'Save',
+    'Shot'
+}
 
 class PlayerStats:
-    def __init__(self, name, username, opp_flag=False, usernames=[]):
-        self.name = name
+    def __init__(self, username, opp_flag=False, usernames=[]):
+        # self.name = name
         self.username = username
         self.opp_flag = opp_flag
         self.usernames = usernames
@@ -42,23 +53,50 @@ class PlayerStats:
         self.demos += 1
 
     def handle_event(self, event: dict):
-        if not event.get('Data').get('MainTarget') or not event.get('Data').get('MatchGuid') or not event.get('Event') == 'StatfeedEvent':
-            return
+        matched = False
+
+        if event.get('Event') != 'StatfeedEvent':
+            return matched
+        if not event.get('Data').get('MatchGuid'):
+            return matched
+        if not event.get('Data').get('MainTarget'):
+            return matched
 
         main_target = event.get('Data').get('MainTarget').get('Name')
-        if (main_target == self.username) or (self.opp_flag and main_target not in self.usernames):
-            event_name = event.get('Data').get('EventName')
+        event_name = event.get('Data').get('EventName')
 
+        if self.opp_flag:
+            if (main_target not in self.usernames):
+                self._handle_event(event_name)
+        else:
+            if (main_target == self.username):
+                self._handle_event(event_name)
+
+    def _handle_event(self, event_name: str):
             if event_name == 'Goal':
                 self.add_goal()
+                
             elif event_name == 'Assist':
                 self.add_assist()
+
             elif event_name in ['Save','EpicSave']:
                 self.add_save()
+                
             elif event_name == 'Shot':
                 self.add_shot()
+                
             elif event_name == 'Demolish':
                 self.add_demo()
+                
+    
+    def export(self):
+        return {
+            f'{self.username}_goals':self.goals,
+            f'{self.username}_assists':self.assists,
+            f'{self.username}_saves':self.saves,
+            f'{self.username}_shots':self.shots,
+            f'{self.username}_demos':self.demos,
+        }
 
     def reset(self):
         self.goals = 0
@@ -68,18 +106,89 @@ class PlayerStats:
         self.demos = 0
 
     def __str__(self):
-        return f'Player: {self.name}\n\tGoals: {self.goals}\n\tShots: {self.shots}\n\tAssists: {self.assists}\n\tSaves: {self.saves}\n\tDemos: {self.demos}'
+        return f'Player: {self.username}\n\tGoals: {self.goals}\n\tShots: {self.shots}\n\tAssists: {self.assists}\n\tSaves: {self.saves}\n\tDemos: {self.demos}'
 
+
+class GameState:
+    def __init__(self, player_usernames: list[str]):
+        self.players: list[PlayerStats] = [PlayerStats(username) for username in player_usernames]
+        self.opp: PlayerStats = PlayerStats('opp', opp_flag=True, usernames=player_usernames)
+        
+        self.team_goals = 0
+        self.lead = 0
+        self.overtime = 0
+        self.win = 0
+
+
+    def reset(self):
+        self.lead = 0
+        self.overtime = 0
+        self.win = 0
+
+        for player in self.players:
+            player.reset()
+        self.opp.reset()
+
+    
+    def export(self):
+        game_data = {
+            'date':datetime.now().strftime('%Y-%m-%d'),
+            'lead':self.lead,
+            'overtime':self.overtime,
+            'win':self.win,
+        }
+
+        for player in self.players:
+            game_data.update(player.export())
+        
+        game_data.update(self.opp.export())
+
+        return game_data
+
+        
+    def handle_event(self, event: dict):
+        event_type = event.get('Event')
+
+        if event_type == 'MatchInitialized':
+            self.reset()
+
+        elif event_type == 'StatfeedEvent':
+            self.opp.handle_event(event)
+
+            for player in self.players:
+                player.handle_event(event)
+
+            # Set the team goals in each event
+            self.team_goals = sum(player.goals for player in self.players)
+
+            # Set the overtime flag if an overtime goal was scored (only way to know OT started)
+            if event.get('Data').get('EventName') == 'OvertimeGoal':
+                self.overtime = 1
+
+            # Set the lead flag if the team goals are ever greater than opp goals AND it isn't overtime
+            if (self.team_goals > self.opp.goals) and (self.overtime == 0):
+                self.lead = 1
+
+
+        elif event_type == 'MatchEnded':
+            if self.team_goals > self.opp.goals:
+                self.win = 1
+
+            game_data = self.export()
+
+            return game_data
 
 class RocketLeagueTracker:
 
-    def __init__(self):
+    def __init__(self, usernames: list[str]):
         self.events = []
         self.game_states = []
         self.current_state = None
 
-        # self.player_one_stats = PlayerStats(name=player_one[0], username=player_one[1])
-        # self.player_two_stats = PlayerStats(name=player_two[0], username=player_two[1])
+        self.game_state = GameState(usernames)
+        self.games = []
+
+
 
     def connect(self):
         while True:
@@ -132,14 +241,18 @@ class RocketLeagueTracker:
 
         # Check if the event is one that should be tracked, then append to list of events
         if event in TRACKED_EVENTS:
-            self.events.append(data)
-
+            
             if event == 'StatfeedEvent':
                 event_name = data.get('Data').get('EventName')
-                print(f'Event: {event_name}')
+
+                if event_name in TRACKED_EVENT_NAMES:
+                    self.events.append(data)
+                    print(f'Event: {event_name}')
 
             else:
+                self.events.append(data)
                 print(f'Event: {event}')
+                
 
         # Additional check of when the match ends to append the current state to the game_states
         if event == "MatchEnded":
@@ -150,16 +263,11 @@ class RocketLeagueTracker:
 
 
     def compile_data(self):
-        har_stats = PlayerStats('har', 'tekjnbo')
-        kev_stats = PlayerStats('kev', 'ilovethezoo46')
-        opp_stats = PlayerStats('opp', 'opp', opp_flag=True, usernames=['tekjnbo','ilovethezoo46'])
-
         for event in self.events:
-            
+            game_data = self.game_state.handle_event(event)
 
-            har_stats.handle_event(event)
-            kev_stats.handle_event(event)
-            opp_stats.handle_event(event)
+            if game_data:
+                self.games.append(game_data)
             
 
         
@@ -167,14 +275,25 @@ class RocketLeagueTracker:
 
     def save(self):
         payload = {"events": self.events, "gameStates": self.game_states}
+
         filename = f"rl-session-{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
         with open(filename, "w") as f:
             json.dump(payload, f, indent=2)
         print(f"Saved {len(self.events)} events and {len(self.game_states)} game states to {filename}")
 
+        # Build all games and then save to csv
+        self.compile_data()
+        with open("export.csv", "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=self.games[0].keys())
+            writer.writeheader()
+            writer.writerows(self.games)
+
+
+
+
 
 if __name__ == "__main__":
-    tracker = RocketLeagueTracker()
+    tracker = RocketLeagueTracker(['tekjnbo','ilovethezoo46'])
     try:
         tracker.connect()
     except KeyboardInterrupt:
