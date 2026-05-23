@@ -118,12 +118,20 @@ class GameState:
         self.lead = 0
         self.overtime = 0
         self.win = 0
+        
+        self.game_start = None
+        self.game_end = None
+        self.game_length = None
 
 
     def reset(self):
         self.lead = 0
         self.overtime = 0
         self.win = 0
+
+        self.game_start = None
+        self.game_end = None
+        self.game_length
 
         for player in self.players:
             player.reset()
@@ -136,6 +144,7 @@ class GameState:
             'lead':self.lead,
             'overtime':self.overtime,
             'win':self.win,
+            'length':self.game_length,
         }
 
         for player in self.players:
@@ -148,9 +157,11 @@ class GameState:
         
     def handle_event(self, event: dict):
         event_type = event.get('Event')
+        event_timestamp = event.get('Timestamp')
 
         if event_type == 'MatchInitialized':
             self.reset()
+            self.game_start = datetime.strptime(event_timestamp, '%Y-%m-%d_%H-%M-%S')
 
         elif event_type == 'StatfeedEvent':
             self.opp.handle_event(event)
@@ -171,12 +182,16 @@ class GameState:
 
 
         elif event_type == 'MatchEnded':
+            self.game_end = datetime.strptime(event_timestamp, '%Y-%m-%d_%H-%M-%S')
+            self.game_length = (self.game_end - self.game_start).total_seconds()
+
             if self.team_goals > self.opp.goals:
                 self.win = 1
 
             game_data = self.export()
 
             return game_data
+        
 
 class RocketLeagueTracker:
 
@@ -204,7 +219,7 @@ class RocketLeagueTracker:
                 print("Connection lost — retrying in 3 seconds...")
                 time.sleep(3)
 
-    def receive(self, s):
+    def receive(self, s: socket.socket):
         s.settimeout(1.0)  # wake up every second to allow Ctrl+C to be caught
         buffer = ""
         while True:
@@ -252,7 +267,6 @@ class RocketLeagueTracker:
             else:
                 self.events.append(data)
                 print(f'Event: {event}')
-                
 
         # Additional check of when the match ends to append the current state to the game_states
         if event == "MatchEnded":
@@ -270,23 +284,32 @@ class RocketLeagueTracker:
                 self.games.append(game_data)
             
 
-        
+    def save_csv(self, filename):
+        if self.games:
+            with open(filename, 'w', newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=self.games[0].keys())
+                writer.writeheader()
+                writer.writerows(self.games)
+        else:
+            print('No Completed games to export')
 
 
     def save(self):
+        timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
         payload = {"events": self.events, "gameStates": self.game_states}
 
-        filename = f"rl-session-{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
+        filename = f"rl-session-{timestamp}.json"
         with open(filename, "w") as f:
             json.dump(payload, f, indent=2)
         print(f"Saved {len(self.events)} events and {len(self.game_states)} game states to {filename}")
 
-        # Build all games and then save to csv
+        # Build all games and then save to 2 csv files: export.csv (to be rewritten every session) and games-export-{timestamp}.csv (to have a unique csv for each session)
         self.compile_data()
-        with open("export.csv", "w", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=self.games[0].keys())
-            writer.writeheader()
-            writer.writerows(self.games)
+
+        self.save_csv('export.csv')
+        self.save_csv(f'games-export-{timestamp}.csv')
+        
 
 
 
