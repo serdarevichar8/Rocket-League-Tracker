@@ -1,3 +1,4 @@
 *.json
 *.ipynb
 *.csv
+__pycache__/

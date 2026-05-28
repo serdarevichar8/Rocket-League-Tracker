@@ -529,7 +529,12 @@ class App(ctk.CTk):
     def poll_queue(self):
         while not self.message_queue.empty():
             self.message_queue.get()  # just draining the signal
-            self.tracking_page.update(self.tracker.game_state, self.tracker.session_state)
+
+            try:
+                self.tracking_page.update(self.tracker.game_state, self.tracker.session_state)
+            except Exception as e:
+                print(f"GUI update error: {e}")
+
         self.after(100, self.poll_queue)
 
 
