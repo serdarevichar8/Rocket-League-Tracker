@@ -279,6 +279,20 @@ class SessionState:
                 player_session.shots += player.shots
                 player_session.demos += player.demos
 
+        streak = 0
+
+        if len(self.games) > 0:
+            games = self.games[::-1]
+            last_result = games[0].get('win')
+
+            for game in games:
+                if last_result == game.get('win'):
+                    streak += 1
+                else:
+                    break
+        
+        self.streak = streak
+
 
 
 class RocketLeagueTracker:
