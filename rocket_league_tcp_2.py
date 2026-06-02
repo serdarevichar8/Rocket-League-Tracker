@@ -291,7 +291,7 @@ class SessionState:
                 else:
                     break
         
-        self.streak = streak
+        self.streak = streak if last_result == 1 else -streak
 
 
 
@@ -412,7 +412,7 @@ class RocketLeagueTracker:
         # Additional check of when the match ends to append the current state to the game states and export GameState objects data
         if event == "MatchEnded":
             game_data = self.game_state.export()
-            self.games.append(game_data)
+            # self.games.append(game_data)
 
             self.session_state.games.append(game_data)
             self.session_state.update(self.game_state)
@@ -421,7 +421,7 @@ class RocketLeagueTracker:
                 self.game_states.append(self.current_state)
             self.current_state = None
 
-            print(f"Game over. Total games: {len(self.game_states)}")
+            print(f"Game over. Total games: {len(self.session_state.games)}")
 
         if update_gui:
             self.queue.put(True)
@@ -447,11 +447,11 @@ class RocketLeagueTracker:
         Write the `games` attribute (which is a list of dicts) to a csv file by a provided filename.
         Uses the provided `csv` module to reduce dependencies.
         '''
-        if self.games:
+        if self.session_state.games:
             with open(filename, 'w', newline='') as f:
-                writer = csv.DictWriter(f, fieldnames=self.games[0].keys())
+                writer = csv.DictWriter(f, fieldnames=self.session_state.games[0].keys())
                 writer.writeheader()
-                writer.writerows(self.games)
+                writer.writerows(self.session_state.games)
         else:
             print('No Completed games to export')
 

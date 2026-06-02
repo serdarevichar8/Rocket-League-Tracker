@@ -553,6 +553,7 @@ class App(ctk.CTk):
         self.message_queue = queue.Queue()
         self.tracker = None
         
+        self.iconbitmap('Fennec_body_icon.ico')
         self.title("RL Tracker")
         self.geometry("1000x800")
 
