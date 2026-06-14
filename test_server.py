@@ -35,6 +35,8 @@ try:
                     print(f'Client disconected mid-loop, error: {e}')
                     break
 
+            print('Done sending test events')
+
             # conn.close()
             # print(f'Closed connection to: {address[0]}:{address[1]}')
 

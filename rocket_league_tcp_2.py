@@ -164,6 +164,7 @@ class GameState:
         self.lead = 0
         self.overtime = 0
         self.win = 0
+        self.margin = 0
         
         self.game_start = None
         self.game_end = None
@@ -181,10 +182,14 @@ class GameState:
         self.lead = 0
         self.overtime = 0
         self.win = 0
+        self.margin = 0
 
         self.game_start = None
         self.game_end = None
         self.game_length = None
+
+        self.largest_lead = 0
+        self.largest_deficit = 0
 
         for player in self.players:
             player.reset()
@@ -241,6 +246,14 @@ class GameState:
 
             # Set the team goals in each event
             self.team_goals = sum(player.goals for player in self.players)
+
+            self.margin = self.team_goals - self.opp.goals
+            if self.margin > 0:
+                if self.margin > self.largest_lead:
+                    self.largest_lead = self.margin
+            elif self.margin < 0:
+                if abs(self.margin) > self.largest_deficit:
+                    self.largest_deficit = abs(self.margin)
 
             # Set the overtime flag if an overtime goal was scored (only way to know OT started)
             if event.get('Data').get('EventName') == 'OvertimeGoal':

@@ -2,6 +2,7 @@ import os
 import threading
 import queue
 import json
+from typing import Any
 
 import customtkinter as ctk
 
@@ -15,15 +16,8 @@ CARD_HEADING_FONT = ('default', 16, 'bold')
 
 
 class StatRow(ctk.CTkFrame):
-    def __init__(self, parent, label: str, columns: list[str] = ['int']):
+    def __init__(self, parent, label: str, columns: list[tuple[str, Any]] = [('int', 0)]):
         super().__init__(parent, fg_color="transparent")
-
-        self.VALUE_MAP = {
-            'int':0,
-            'float':0.0,
-            'bool':'No',
-            'pct':'0%'
-        }
 
         self.columnconfigure(0, weight=1)  # label takes remaining space
 
@@ -31,13 +25,16 @@ class StatRow(ctk.CTkFrame):
         self.label.grid(row=0, column=0, sticky="w")
 
         self.value_labels: list[ctk.CTkLabel] = []
-        for index, value_type in enumerate(columns):
-            initial_value = self.VALUE_MAP.get(value_type, 0)
+        for index, column_tuple in enumerate(columns):
+            data_type, initial_value = column_tuple
 
-            value_label = ctk.CTkLabel(self, text=f'{initial_value}', anchor='center', width=40)
+            value_label = ctk.CTkLabel(self, text='', anchor='center', width=40)
             value_label.grid(row=0, column=(index + 1), padx=(0, 0), sticky="e")
 
-            self.value_labels.append(value_label)
+            self.value_labels.append((value_label, data_type))
+
+        initial_values = [initial_value for data_type, initial_value in columns]
+        self.update(*initial_values)
 
 
     def update(self, *args):
@@ -52,9 +49,36 @@ class StatRow(ctk.CTkFrame):
             raise ValueError('The number of arguments must be equal to the number of values added to the statrow')
 
         for index, value in enumerate(args):
-            value_label: ctk.CTkLabel = self.value_labels[index]
+            value_label, data_type = self.value_labels[index]
+            value_label: ctk.CTkLabel
 
-            value_label.configure(text=str(value))
+            if data_type == 'int':
+                if not isinstance(value, int):
+                    raise ValueError(f'Stat row value must be an int, value passed was {value}')
+                
+                value_label.configure(text=str(value))
+
+            elif data_type == 'float':
+                if not isinstance(value, float):
+                    raise ValueError(f'Stat row value must be a float, value passed was {value}')
+                
+                value_label.configure(text=str(round(value, 1)))
+
+            elif data_type == 'bool':
+                if value not in (0, 1):
+                    raise ValueError(f'Stat row value must be either 0 or 1, value passed was {value}')
+                
+                bool_text = 'Yes' if value else 'No'
+                bool_color = GREEN if value else RED
+
+                value_label.configure(text=bool_text, text_color=bool_color)
+
+            elif data_type == 'pct':
+                if not isinstance(value, int):
+                    raise ValueError(f'Stat row value must be an int, value passed was {value}')
+                
+                value_label.configure(text=f'{value}%')
+
 
 
 class PlayerFrame(ctk.CTkFrame):
@@ -77,11 +101,11 @@ class PlayerFrame(ctk.CTkFrame):
         ctk.CTkFrame(self, height=1, fg_color="gray30").pack(fill="x", padx=12, pady=(0, 4))
 
         # stat rows — each needs the same column widths
-        self.goals_row   = StatRow(self, "Goals", columns=['int','float'])
-        self.assists_row = StatRow(self, "Assists", columns=['int','float'])
-        self.saves_row   = StatRow(self, "Saves", columns=['int','float'])
-        self.shots_row   = StatRow(self, "Shots", columns=['int','float'])
-        self.demos_row   = StatRow(self, "Demos", columns=['int','float'])
+        self.goals_row   = StatRow(self, "Goals", columns=[('int', 0),('float', 0.0)])
+        self.assists_row = StatRow(self, "Assists", columns=[('int', 0),('float', 0.0)])
+        self.saves_row   = StatRow(self, "Saves", columns=[('int', 0),('float', 0.0)])
+        self.shots_row   = StatRow(self, "Shots", columns=[('int', 0),('float', 0.0)])
+        self.demos_row   = StatRow(self, "Demos", columns=[('int', 0),('float', 0.0)])
 
         for row in (self.goals_row, self.assists_row, self.saves_row, self.shots_row, self.demos_row):
             row.pack(fill="x", padx=12, pady=2)
@@ -90,11 +114,11 @@ class PlayerFrame(ctk.CTkFrame):
 
         divisor = len(session_state.games) if len(session_state.games) > 0 else 1
 
-        self.goals_row.update(player_stats.goals, round(player_stats.goals / divisor, 2))
-        self.assists_row.update(player_stats.assists, round(player_stats.assists / divisor, 2))
-        self.saves_row.update(player_stats.saves, round(player_stats.saves / divisor, 2))
-        self.shots_row.update(player_stats.shots, round(player_stats.shots / divisor, 2))
-        self.demos_row.update(player_stats.demos, round(player_stats.demos / divisor, 2))
+        self.goals_row.update(player_stats.goals, player_stats.goals / divisor)
+        self.assists_row.update(player_stats.assists, player_stats.assists / divisor)
+        self.saves_row.update(player_stats.saves, player_stats.saves / divisor)
+        self.shots_row.update(player_stats.shots, player_stats.shots / divisor)
+        self.demos_row.update(player_stats.demos, player_stats.demos / divisor)
 
 
 class ScoreFrame(ctk.CTkFrame):
@@ -134,10 +158,10 @@ class GameStatsFrame(ctk.CTkFrame):
         ctk.CTkLabel(self, text="Game stats", font=CARD_HEADING_FONT).pack(anchor="w", padx=12, pady=(10, 4))
         ctk.CTkFrame(self, height=1, fg_color="gray30").pack(fill="x", padx=12, pady=(0, 4))
 
-        self.largest_lead = StatRow(self, "Largest lead", columns=['int'])
-        self.largest_deficit = StatRow(self, "Largest deficit", columns=['int'])
-        self.lead_flag = StatRow(self, "Lead at any point", columns=['bool'])
-        self.ot_flag = StatRow(self, "Overtime", columns=['bool'])
+        self.largest_lead = StatRow(self, "Largest lead", columns=[('int', 0)])
+        self.largest_deficit = StatRow(self, "Largest deficit", columns=[('int', 0)])
+        self.lead_flag = StatRow(self, "Lead at any point", columns=[('bool', 0)])
+        self.ot_flag = StatRow(self, "Overtime", columns=[('bool', 0)])
 
         for row in (self.largest_lead, self.largest_deficit, self.lead_flag, self.ot_flag):
             row.pack(fill="x", padx=12, pady=2)
@@ -145,8 +169,8 @@ class GameStatsFrame(ctk.CTkFrame):
     def update(self, game_state: GameState):
         self.largest_lead.update(game_state.largest_lead)
         self.largest_deficit.update(game_state.largest_deficit)
-        self.lead_flag.update("yes" if game_state.lead else "no")
-        self.ot_flag.update("yes" if game_state.overtime else "no")
+        self.lead_flag.update(game_state.lead)
+        self.ot_flag.update(game_state.overtime)
 
 
 class CurrentGamePlayerFrame(ctk.CTkFrame):
@@ -166,7 +190,7 @@ class CurrentGamePlayerFrame(ctk.CTkFrame):
 
         self.player_rows: dict[str, StatRow] = {}
         for username in usernames:
-            row = StatRow(self, username, columns=['int','int','int'])
+            row = StatRow(self, username, columns=[('int', 0),('int', 0),('int', 0)])
             row.pack(fill="x", padx=12, pady=2)
             self.player_rows[username] = row
 
@@ -248,10 +272,10 @@ class SessionStatsFrame(ctk.CTkFrame):
         ctk.CTkLabel(header_row, text="Session Stats", font=CARD_HEADING_FONT).grid(row=0, column=0, sticky="w")
         ctk.CTkFrame(self, height=1, fg_color="gray30").pack(fill="x", padx=12, pady=(0, 4))
 
-        self.win_rate = StatRow(self, "Win Rate", columns=['pct'])
-        self.lead_conversion = StatRow(self, "Lead Conversion", columns=['pct'])
-        self.ot_rate = StatRow(self, "OT Win Rate", columns=['pct'])
-        self.game_length = StatRow(self, "Avg Game Length (s)", columns=['int'])
+        self.win_rate = StatRow(self, "Win Rate", columns=[('pct', 0)])
+        self.lead_conversion = StatRow(self, "Lead Conversion", columns=[('pct', 0)])
+        self.ot_rate = StatRow(self, "OT Win Rate", columns=[('pct', 0)])
+        self.game_length = StatRow(self, "Avg Game Length (s)", columns=[('int', 0)])
 
         for row in (self.win_rate, self.lead_conversion, self.ot_rate, self.game_length):
             row.pack(fill="x", padx=12, pady=2)
@@ -269,9 +293,9 @@ class SessionStatsFrame(ctk.CTkFrame):
         ot_divisor = (session_state.ot_wins + session_state.ot_losses) if (session_state.ot_wins + session_state.ot_losses) > 0 else 1
         ot_rate = int(session_state.ot_wins / ot_divisor * 100)
 
-        self.win_rate.update(f'{win_rate}%')
-        self.lead_conversion.update(f'{lead_rate}%')
-        self.ot_rate.update(f'{ot_rate}%')
+        self.win_rate.update(win_rate)
+        self.lead_conversion.update(lead_rate)
+        self.ot_rate.update(ot_rate)
         self.game_length.update(session_state.avg_game_length)
 
 
@@ -547,7 +571,6 @@ class App(ctk.CTk):
         self.message_queue = queue.Queue()
         self.tracker = None
         
-        self.iconbitmap('Fennec_body_icon.ico')
         self.title("RL Tracker")
         self.geometry("1000x800")
 
