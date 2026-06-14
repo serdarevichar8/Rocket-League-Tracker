@@ -56,8 +56,6 @@ class StatRow(ctk.CTkFrame):
 
             value_label.configure(text=str(value))
 
-    
-
 
 class PlayerFrame(ctk.CTkFrame):
     def __init__(self, parent, username: str, opp=False):
@@ -181,7 +179,6 @@ class CurrentGamePlayerFrame(ctk.CTkFrame):
                 player_row.update(player.goals, player.saves, player.demos)
 
 
-
 class MiniCard(ctk.CTkFrame):
     def __init__(self, parent, label: str, value, color = 'white'):
         super().__init__(parent, fg_color=CARD_COLOR)
@@ -240,7 +237,6 @@ class SessionMiniCardsFrame(ctk.CTkFrame):
             self.streak_card.update(str(session_state.streak), color='white')
 
 
-
 class SessionStatsFrame(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent, fg_color=CARD_COLOR)
@@ -277,8 +273,6 @@ class SessionStatsFrame(ctk.CTkFrame):
         self.lead_conversion.update(f'{lead_rate}%')
         self.ot_rate.update(f'{ot_rate}%')
         self.game_length.update(session_state.avg_game_length)
-
-
 
 
 class Square(ctk.CTkFrame):

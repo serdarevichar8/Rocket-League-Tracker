@@ -28,10 +28,9 @@ try:
             for event in events:
                 try:
                     event_bytes = json.dumps(event).encode()
-
                     conn.send(event_bytes)
-
                     time.sleep(0.25)
+
                 except Exception as e:
                     print(f'Client disconected mid-loop, error: {e}')
                     break

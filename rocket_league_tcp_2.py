@@ -1,5 +1,6 @@
 import threading
 import queue
+import sqlite3
 import socket
 import json
 import csv
@@ -26,6 +27,28 @@ TRACKED_EVENT_NAMES = {
     'Save',
     'Shot'
 }
+
+
+def insert_event(connection: sqlite3.Connection, event_dict: dict):
+    '''
+    Function which takes an Event json and writes it to the events db model.
+    '''
+    event_type = event_dict.get('Event')
+    timestamp = event_dict.get('Timestamp')
+
+    data: dict = event_dict.get('Data')
+
+    match_guid = data.get('MatchGuid')
+    event_name = data.get('EventName')
+    username = None
+
+    if data.get('MainTarget'):
+        username = data.get('MainTarget').get('Name')
+
+    data_tuple = (event_type, timestamp, match_guid, event_name, username)
+    connection.execute('INSERT INTO events (event_type, timestamp, match_guid, event_name, username) VALUES (?, ?, ?, ?, ?)', data_tuple)
+    connection.commit()
+
 
 class PlayerStats:
     def __init__(self, username, opp_flag=False, usernames=[]):
@@ -154,6 +177,7 @@ class GameState:
         '''
         Clears all attributes. To be used when moving from a completed game to a new game.
         '''
+        self.team_goals = 0
         self.lead = 0
         self.overtime = 0
         self.win = 0
@@ -298,6 +322,19 @@ class SessionState:
 class RocketLeagueTracker:
 
     def __init__(self, usernames: list[str], queue):
+        self.db: sqlite3.Connection = sqlite3.connect('rocket_tracker.db', check_same_thread=False)
+        self.db.execute('''
+            CREATE TABLE IF NOT EXISTS events (
+                event_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                event_type TEXT,
+                timestamp TEXT,
+                match_guid TEXT,
+                event_name TEXT,
+                username TEXT
+            )
+        ''')
+        self.db.commit()
+
         self.queue = queue
 
         self.events = []
@@ -396,6 +433,7 @@ class RocketLeagueTracker:
                 if event_name in TRACKED_EVENT_NAMES:
                     self.game_state.handle_event(data)
                     self.events.append(data)
+                    insert_event(self.db, data)
 
                     update_gui = True
                     print(f'Event: {event_name}')
@@ -403,10 +441,12 @@ class RocketLeagueTracker:
             else:
                 self.game_state.handle_event(data)
                 self.events.append(data)
+                insert_event(self.db, data)
 
                 update_gui = True
                 print(f'Event: {event}')
 
+            
             
 
         # Additional check of when the match ends to append the current state to the game states and export GameState objects data
@@ -425,21 +465,6 @@ class RocketLeagueTracker:
 
         if update_gui:
             self.queue.put(True)
-
-
-    def compile_data(self):
-        '''
-        DEPRECATED - unnecessary now due to `game_state` updating throughout the game as events arrive.
-
-        Loop through all the events in the session and build records in the `games` attribute.
-
-        This executes during the `save` method at the very end.
-        '''
-        for event in self.events:
-            game_data = self.game_state.handle_event(event)
-
-            if game_data:
-                self.games.append(game_data)
             
 
     def save_csv(self, filename):
