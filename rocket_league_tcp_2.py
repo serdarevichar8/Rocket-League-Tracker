@@ -15,7 +15,8 @@ BUFFER_SIZE = 4096
 TRACKED_EVENTS = {
     'MatchInitialized',
     'MatchEnded',
-    'StatfeedEvent'
+    'StatfeedEvent',
+    'ClockUpdatedSeconds'
 }
 
 TRACKED_EVENT_NAMES = {
@@ -169,6 +170,8 @@ class GameState:
         self.game_start = None
         self.game_end = None
         self.game_length = None
+        
+        self.seconds_remaining = 300
 
         self.largest_lead = 0
         self.largest_deficit = 0
@@ -187,6 +190,8 @@ class GameState:
         self.game_start = None
         self.game_end = None
         self.game_length = None
+
+        self.seconds_remaining = 300
 
         self.largest_lead = 0
         self.largest_deficit = 0
@@ -237,6 +242,19 @@ class GameState:
         if event_type == 'MatchInitialized':
             self.reset()
             self.game_start = datetime.strptime(event_timestamp, '%Y-%m-%d_%H-%M-%S')
+
+        elif event_type == 'ClockUpdatedSeconds':
+            event_data: dict = event.get('Data')
+
+            if event_data:
+                time_seconds: int = event_data.get('TimeSeconds')
+                overtime_flag: bool = event_data.get('bOvertime')
+
+                # Set the seconds_remaining to the negative value if in overtime
+                self.seconds_remaining = -time_seconds if overtime_flag else time_seconds
+
+                if overtime_flag:
+                    self.overtime = 1
 
         elif event_type == 'StatfeedEvent':
             self.opp.handle_event(event)
@@ -452,6 +470,8 @@ class RocketLeagueTracker:
 
                 if event_name in TRACKED_EVENT_NAMES:
                     self.game_state.handle_event(data)
+                    data['Seconds_Remaining'] = self.game_state.seconds_remaining
+
                     self.events.append(data)
                     insert_event(self.db, data)
 
@@ -460,6 +480,8 @@ class RocketLeagueTracker:
 
             else:
                 self.game_state.handle_event(data)
+                data['Seconds_Remaining'] = self.game_state.seconds_remaining
+
                 self.events.append(data)
                 insert_event(self.db, data)
 
