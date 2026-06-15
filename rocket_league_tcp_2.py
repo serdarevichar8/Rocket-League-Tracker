@@ -280,6 +280,7 @@ class SessionState:
     def __init__(self, usernames: list[str]):
         self.usernames: list[str] = usernames
         self.players: dict[str, PlayerStats] = {username:PlayerStats(username) for username in self.usernames}
+        self.opp: PlayerStats = PlayerStats('opp', opp_flag=True, usernames=self.usernames)
 
         self.wins: int = 0
         self.losses: int = 0
@@ -315,6 +316,12 @@ class SessionState:
                 player_session.saves += player.saves
                 player_session.shots += player.shots
                 player_session.demos += player.demos
+        
+        self.opp.goals += game_state.opp.goals
+        self.opp.assists += game_state.opp.assists
+        self.opp.saves += game_state.opp.saves
+        self.opp.shots += game_state.opp.shots
+        self.opp.demos += game_state.opp.demos
 
         streak = 0
 
