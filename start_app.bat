@@ -1,3 +1,3 @@
 @echo off
-python gui.py
+python app.py
 pause
