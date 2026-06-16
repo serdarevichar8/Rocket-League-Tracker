@@ -5,6 +5,7 @@ import json
 with open('test_events.json', 'r') as f:
     events: list[dict] = json.load(f)
 
+# print(len(events))
 # event_byte = json.dumps(events[1]).encode()
 
 
@@ -25,17 +26,23 @@ try:
 
             print(f'Connected to: {address[0]}:{address[1]}')
 
-            for event in events:
+            for index, event in enumerate(events):
                 try:
                     event_bytes = json.dumps(event).encode()
                     conn.send(event_bytes)
+
+                    if index % 10 == 0:
+                        progress = int((index+1) / len(events) * 100)
+
+                        print(f"\rProgress {progress}%", end="", flush=True)
+
                     time.sleep(0.25)
 
                 except Exception as e:
                     print(f'Client disconected mid-loop, error: {e}')
                     break
 
-            print('Done sending test events')
+            print('\nDone sending test events')
 
             # conn.close()
             # print(f'Closed connection to: {address[0]}:{address[1]}')
