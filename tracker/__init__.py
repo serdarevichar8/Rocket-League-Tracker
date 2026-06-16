@@ -1,32 +1,21 @@
-from tracker.player_stats import PlayerStats
-from tracker.game_state import GameState
-from tracker.session_state import SessionState
-from tracker.config import HOST, PORT, BUFFER_SIZE, TRACKED_EVENTS, TRACKED_EVENT_NAMES
-from tracker.utils import insert_event
-
-import sqlite3
 import socket
 import json
 import csv
 import time
 from datetime import datetime        
 
+from tracker.player_stats import PlayerStats
+from tracker.game_state import GameState
+from tracker.session_state import SessionState
+from tracker.config import HOST, PORT, BUFFER_SIZE, TRACKED_EVENTS, TRACKED_EVENT_NAMES
+from tracker.utils import insert_event
+from tracker.db import create_conn, initialize_schema
 
 class RocketLeagueTracker:
 
     def __init__(self, usernames: list[str], queue):
-        self.db: sqlite3.Connection = sqlite3.connect('rocket_tracker.db', check_same_thread=False)
-        self.db.execute('''
-            CREATE TABLE IF NOT EXISTS events (
-                event_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                event_type TEXT,
-                timestamp TEXT,
-                match_guid TEXT,
-                event_name TEXT,
-                username TEXT
-            )
-        ''')
-        self.db.commit()
+        self.db = create_conn()
+        initialize_schema(self.db)
 
         self.queue = queue
 

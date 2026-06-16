@@ -31,7 +31,7 @@ try:
                     event_bytes = json.dumps(event).encode()
                     conn.send(event_bytes)
 
-                    if index % 10 == 0:
+                    if (index % 5 == 0) or (index + 1 == len(events)):
                         progress = int((index+1) / len(events) * 100)
 
                         print(f"\rProgress {progress}%", end="", flush=True)
@@ -44,8 +44,8 @@ try:
 
             print('\nDone sending test events')
 
-            # conn.close()
-            # print(f'Closed connection to: {address[0]}:{address[1]}')
+            if not conn.recv(1):
+                print(f'Client disconnected: {address[0]}:{address[1]}')
 
 
 
