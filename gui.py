@@ -6,7 +6,7 @@ from typing import Any
 
 import customtkinter as ctk
 
-from rocket_league_tcp_2 import PlayerStats, GameState, SessionState, RocketLeagueTracker
+from tracker import PlayerStats, GameState, SessionState, RocketLeagueTracker
 
 RED = '#e77e7e'
 GREEN = '#88cc66'
@@ -78,7 +78,6 @@ class StatRow(ctk.CTkFrame):
                     raise ValueError(f'Stat row value must be an int, value passed was {value}')
                 
                 value_label.configure(text=f'{value}%')
-
 
 
 class PlayerFrame(ctk.CTkFrame):
