@@ -10,12 +10,12 @@ def create_conn():
     Creates the connection object to the database. Uses the `DB_URI` variable
     and returns the connection object.
     '''
-    db: sqlite3.Connection = sqlite3.connect(DB_URI, check_same_thread=False)
+    conn: sqlite3.Connection = sqlite3.connect(DB_URI, check_same_thread=False)
 
-    return db
+    return conn
 
 
-def create_table(db: sqlite3.Connection):
+def create_table(conn: sqlite3.Connection):
     '''
     Creates the events table in the database if it doesn't exist.
 
@@ -43,11 +43,10 @@ def create_table(db: sqlite3.Connection):
 
     statement = create_statement + column_definition
 
+    conn.execute(statement)
 
-    db.execute(statement)
 
-
-def initialize_schema(db: sqlite3.Connection):
+def initialize_schema(conn: sqlite3.Connection):
     '''
     Initialization function, intended to be run after the connection has been established.
     Runs initialization of creating tables, altering tables, etc. Then closes with committing
@@ -59,6 +58,27 @@ def initialize_schema(db: sqlite3.Connection):
 
     Commits changes
     '''
-    create_table(db)
+    create_table(conn)
 
-    db.commit()
+    conn.commit()
+
+
+def insert_event(conn: sqlite3.Connection, event_dict: dict):
+    '''
+    Function which takes an Event json and writes it to the events db model.
+    '''
+    event_type = event_dict.get('Event')
+    timestamp = event_dict.get('Timestamp')
+
+    data: dict = event_dict.get('Data')
+
+    match_guid = data.get('MatchGuid')
+    event_name = data.get('EventName')
+    username = None
+
+    if data.get('MainTarget'):
+        username = data.get('MainTarget').get('Name')
+
+    data_tuple = (event_type, timestamp, match_guid, event_name, username)
+    conn.execute('INSERT INTO events (event_type, timestamp, match_guid, event_name, username) VALUES (?, ?, ?, ?, ?)', data_tuple)
+    conn.commit()

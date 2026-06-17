@@ -1,3 +1,4 @@
+import os
 import socket
 import json
 import csv
@@ -8,8 +9,7 @@ from tracker.player_stats import PlayerStats
 from tracker.game_state import GameState
 from tracker.session_state import SessionState
 from tracker.config import HOST, PORT, BUFFER_SIZE, TRACKED_EVENTS, TRACKED_EVENT_NAMES
-from tracker.utils import insert_event
-from tracker.db import create_conn, initialize_schema
+from tracker.db import create_conn, initialize_schema, insert_event
 
 class RocketLeagueTracker:
 
@@ -153,18 +153,44 @@ class RocketLeagueTracker:
             self.queue.put(True)
             
 
-    def save_csv(self, filename):
+    def save_csv(self, filename, sub_folder=True):
         '''
         Write the `games` attribute (which is a list of dicts) to a csv file by a provided filename.
         Uses the provided `csv` module to reduce dependencies.
+
+        Drops the csvs into the `games_exports` directory, but has an option to not drop into a sub-folder.
+        This is used in the case of `export.csv`.
         '''
         if self.session_state.games:
-            with open(filename, 'w', newline='') as f:
+            folder_name = 'games_exports'
+            os.makedirs(folder_name, exist_ok=True)
+
+            filepath = f'{folder_name}/{filename}' if sub_folder else filename
+
+            with open(filepath, 'w', newline='') as f:
                 writer = csv.DictWriter(f, fieldnames=self.session_state.games[0].keys())
                 writer.writeheader()
                 writer.writerows(self.session_state.games)
         else:
             print('No Completed games to export')
+
+
+    def save_json(self, filename):
+        '''
+        Write the `events` and `game_states` attributes to a json file by a provided filename.
+        Uses the provided `json` module to reduce dependencies.
+
+        Drops the json into the `events_exports` directory.
+        '''
+        payload = {"events": self.events, "gameStates": self.game_states}
+
+
+        folder_name = 'events_exports'
+        os.makedirs(folder_name, exist_ok=True)
+
+        with open(f'{folder_name}/{filename}', "w") as f:
+            json.dump(payload, f, indent=2)
+        print(f"Saved {len(self.events)} events and {len(self.game_states)} game states to {filename}")
 
 
     def save(self):
@@ -176,15 +202,7 @@ class RocketLeagueTracker:
         '''
         timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
-        payload = {"events": self.events, "gameStates": self.game_states}
+        self.save_json(f"events-export-{timestamp}.json")
 
-        filename = f"rl-session-{timestamp}.json"
-        with open(filename, "w") as f:
-            json.dump(payload, f, indent=2)
-        print(f"Saved {len(self.events)} events and {len(self.game_states)} game states to {filename}")
-
-        # Build all games and then save to 2 csv files: export.csv (to be rewritten every session) and games-export-{timestamp}.csv (to have a unique csv for each session)
-        # self.compile_data()
-
-        self.save_csv('export.csv')
+        self.save_csv('export.csv', sub_folder=False)
         self.save_csv(f'games-export-{timestamp}.csv')
