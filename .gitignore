@@ -5,3 +5,4 @@ __pycache__/
 *.db
 *.pkl
 .venv/
+.DS_Store
