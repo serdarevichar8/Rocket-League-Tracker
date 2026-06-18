@@ -79,5 +79,10 @@ class PlayerStats:
         self.shots = 0
         self.demos = 0
 
+    def __eq__(self, other):
+        if not isinstance(other, PlayerStats):
+            return NotImplemented
+        return self.__dict__ == other.__dict__
+
     def __str__(self):
         return f'Player: {self.username}\n\tGoals: {self.goals}\n\tShots: {self.shots}\n\tAssists: {self.assists}\n\tSaves: {self.saves}\n\tDemos: {self.demos}'
