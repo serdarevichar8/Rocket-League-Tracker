@@ -1,9 +1,12 @@
 import os
+import pickle
 import socket
 import json
 import csv
 import time
-from datetime import datetime        
+from datetime import datetime
+
+from sklearn.ensemble import RandomForestClassifier
 
 from tracker.player_stats import PlayerStats
 from tracker.game_state import GameState
@@ -16,6 +19,18 @@ class RocketLeagueTracker:
     def __init__(self, usernames: list[str], queue):
         self.db = create_conn()
         initialize_schema(self.db)
+
+        self.model = None
+        if os.path.isfile('random_forest_model.pkl'):
+            with open('random_forest_model.pkl', 'rb') as f:
+                model = pickle.load(f)
+
+                if isinstance(model, RandomForestClassifier):
+                    self.model = model
+
+                    print('Model loaded')
+
+
 
         self.queue = queue
 
@@ -115,6 +130,7 @@ class RocketLeagueTracker:
                 if event_name in TRACKED_EVENT_NAMES:
                     self.game_state.handle_event(data)
                     data['Seconds_Remaining'] = self.game_state.seconds_remaining
+                    self.run_model()
 
                     self.events.append(data)
                     insert_event(self.db, data)
@@ -151,7 +167,29 @@ class RocketLeagueTracker:
 
         if update_gui:
             self.queue.put(True)
-            
+
+
+    def run_model(self):
+        if not self.model:
+            return
+        
+        X = [
+            self.game_state.team_goals,
+            sum(player.assists for player in self.game_state.players),
+            sum(player.saves for player in self.game_state.players),
+            sum(player.shots for player in self.game_state.players),
+            sum(player.demos for player in self.game_state.players),
+            self.game_state.opp.goals,
+            self.game_state.opp.assists,
+            self.game_state.opp.saves,
+            self.game_state.opp.shots,
+            self.game_state.opp.demos,
+            self.game_state.seconds_remaining
+        ]
+
+        win_prob = self.model.predict_proba([X])[0][1]
+        self.game_state.win_prob = int(win_prob * 100)
+ 
 
     def save_csv(self, filename, sub_folder=True):
         '''

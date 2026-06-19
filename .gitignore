@@ -6,3 +6,5 @@ __pycache__/
 *.pkl
 .venv/
 .DS_Store
+events_exports/
+games_exports/

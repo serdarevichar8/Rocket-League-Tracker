@@ -17,8 +17,11 @@ class GameStatsFrame(ctk.CTkFrame):
         self.largest_deficit = StatRow(self, "Largest deficit", columns=[('int', 0)])
         self.lead_flag = StatRow(self, "Lead at any point", columns=[('bool', 0)])
         self.ot_flag = StatRow(self, "Overtime", columns=[('bool', 0)])
+        self.win_prob = StatRow(self, 'Win Probability', columns=[('pct', 50)])
+        self.max_win_prob = StatRow(self, 'Max Win Probability', columns=[('pct', 50)])
+        self.min_win_prob = StatRow(self, 'Min Win Probability', columns=[('pct', 50)])
 
-        for row in (self.largest_lead, self.largest_deficit, self.lead_flag, self.ot_flag):
+        for row in (self.largest_lead, self.largest_deficit, self.lead_flag, self.ot_flag, self.win_prob, self.max_win_prob, self.min_win_prob):
             row.pack(fill="x", padx=12, pady=2)
 
     def update(self, game_state: GameState):
@@ -26,3 +29,6 @@ class GameStatsFrame(ctk.CTkFrame):
         self.largest_deficit.update(game_state.largest_deficit)
         self.lead_flag.update(game_state.lead)
         self.ot_flag.update(game_state.overtime)
+        self.win_prob.update(game_state.win_prob)
+        self.max_win_prob.update(game_state.max_win_prob)
+        self.min_win_prob.update(game_state.min_win_prob)

@@ -42,6 +42,10 @@ class GameState:
         self.largest_lead = 0
         self.largest_deficit = 0
 
+        self.win_prob = 50
+        self.max_win_prob = 50
+        self.min_win_prob = 50
+
 
     def reset(self):
         '''
@@ -61,6 +65,10 @@ class GameState:
 
         self.largest_lead = 0
         self.largest_deficit = 0
+
+        self.win_prob = 50
+        self.max_win_prob = 50
+        self.min_win_prob = 50
 
         for player in self.players:
             player.reset()
@@ -147,6 +155,11 @@ class GameState:
             if (self.team_goals > self.opp.goals) and (self.overtime == 0):
                 self.lead = 1
 
+            if self.win_prob > self.max_win_prob:
+                self.max_win_prob = self.win_prob
+            elif self.win_prob < self.min_win_prob:
+                self.min_win_prob = self.win_prob
+
 
         elif event_type == 'MatchEnded':
             self.game_end = datetime.strptime(event_timestamp, '%Y-%m-%d_%H-%M-%S')
@@ -154,6 +167,8 @@ class GameState:
 
             if self.team_goals > self.opp.goals:
                 self.win = 1
+
+            self.win_prob = 100 if self.win else 0
 
             # game_data = self.export()
 
