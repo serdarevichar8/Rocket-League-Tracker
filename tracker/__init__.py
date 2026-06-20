@@ -114,6 +114,9 @@ class RocketLeagueTracker:
         if isinstance(data.get("Data"), str):
             data["Data"] = json.loads(data["Data"])
 
+        if not data.get('MatchGuid'):
+            return
+
         # If the event is an update state, dont save immediately but save it to current state
         if event == "UpdateState":
             self.current_state = data
