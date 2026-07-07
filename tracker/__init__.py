@@ -21,12 +21,14 @@ class RocketLeagueTracker:
         initialize_schema(self.db)
 
         self.model = None
+        self.model_active = False
         if os.path.isfile('random_forest_model.pkl'):
             with open('random_forest_model.pkl', 'rb') as f:
                 model = pickle.load(f)
 
                 if isinstance(model, RandomForestClassifier):
                     self.model = model
+                    self.model_active = True
 
                     print('Model loaded')
 
@@ -173,6 +175,9 @@ class RocketLeagueTracker:
 
 
     def run_model(self):
+        if not self.model_active:
+            return
+        
         if not self.model:
             return
         
@@ -194,8 +199,9 @@ class RocketLeagueTracker:
         self.game_state.win_prob = int(win_prob * 100)
  
 
-    def disable_model(self):
-        self.model = None
+    def toggle_model(self):
+        self.model_active = not self.model_active
+
 
     def save_csv(self, filename, sub_folder=True):
         '''
