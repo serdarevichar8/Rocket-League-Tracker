@@ -20,7 +20,7 @@ class SessionStatsFrame(ctk.CTkFrame):
         self.win_rate = StatRow(self, "Win Rate", columns=[('pct', 0)])
         self.lead_conversion = StatRow(self, "Lead Conversion", columns=[('pct', 0)])
         self.ot_rate = StatRow(self, "OT Win Rate", columns=[('pct', 0)])
-        self.game_length = StatRow(self, "Avg Game Length (s)", columns=[('int', 0)])
+        self.game_length = StatRow(self, "Avg Game Length", columns=[('time', 0)])
         self.avg_opp_goals = StatRow(self, 'Avg Opp G/g', columns=[('float', 0.0)])
         self.goal_differential = StatRow(self, "Goal Differential", columns=[('int', 0)])
         self.save_rate = StatRow(self, 'Save Rate (saves / saves+goals)', columns=[('pct', 0)])

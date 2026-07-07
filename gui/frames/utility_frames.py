@@ -67,6 +67,20 @@ class StatRow(ctk.CTkFrame):
                 
                 value_label.configure(text=f'{value}%')
 
+            elif data_type == 'time':
+                if not isinstance(value, int):
+                    raise ValueError(f'Stat row value must be an int, value passed was {value}')
+                
+                minutes = value // 60
+                seconds = value % 60
+
+                if seconds == 0:
+                    text_label = f'{minutes}:00'
+                else:
+                    text_label = f'{minutes}:{seconds}'
+
+                value_label.configure(text=text_label)
+
 
 class MiniCard(ctk.CTkFrame):
     def __init__(self, parent, label: str, value, color = 'white'):
