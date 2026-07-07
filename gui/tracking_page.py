@@ -8,10 +8,11 @@ from gui.frames.current_game_player_frame import CurrentGamePlayerFrame
 from gui.frames.session_mini_cards_frame import SessionMiniCardsFrame
 from gui.frames.session_stats_frame import SessionStatsFrame
 from gui.frames.session_latest_games_frame import SessionLatestGamesFrame
+from gui.frames.config import RED
 
 
 class TrackingPage(ctk.CTkFrame):
-    def __init__(self, parent, usernames: list[str], on_save):
+    def __init__(self, parent, usernames: list[str], on_save, on_disable_model):
         super().__init__(parent)
 
         # single row, three equal columns
@@ -60,6 +61,9 @@ class TrackingPage(ctk.CTkFrame):
         self.save_button = ctk.CTkButton(self.session_col, text='Save Data', command=on_save)
         self.save_button.pack()
 
+
+        self.model_button = ctk.CTkButton(self.game_col, text='Disable Model', command=on_disable_model, fg_color=RED)
+        self.model_button.pack()
 
         # self.test_button = ctk.CTkButton(self.session_col, text='test', command=self.test_visual)
         # self.test_button.pack()

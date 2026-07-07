@@ -42,7 +42,7 @@ class App(ctk.CTk):
         thread = threading.Thread(target=self.tracker.connect, daemon=True)
         thread.start()
 
-        self.tracking_page = TrackingPage(self, usernames, on_save=self.tracker.save)
+        self.tracking_page = TrackingPage(self, usernames, on_save=self.tracker.save, on_disable_model=self.tracker.disable_model)
         self.show_page(self.tracking_page)
 
         self.poll_queue()

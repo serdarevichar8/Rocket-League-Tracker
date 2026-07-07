@@ -194,6 +194,9 @@ class RocketLeagueTracker:
         self.game_state.win_prob = int(win_prob * 100)
  
 
+    def disable_model(self):
+        self.model = None
+
     def save_csv(self, filename, sub_folder=True):
         '''
         Write the `games` attribute (which is a list of dicts) to a csv file by a provided filename.
