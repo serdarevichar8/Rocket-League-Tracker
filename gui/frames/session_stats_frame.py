@@ -17,16 +17,16 @@ class SessionStatsFrame(ctk.CTkFrame):
         ctk.CTkLabel(header_row, text="Session Stats", font=CARD_HEADING_FONT).grid(row=0, column=0, sticky="w")
         ctk.CTkFrame(self, height=1, fg_color="gray30").pack(fill="x", padx=12, pady=(0, 4))
 
-        self.win_rate = StatRow(self, "Win Rate", columns=[('pct', 0)])
-        self.lead_conversion = StatRow(self, "Lead Conversion", columns=[('pct', 0)])
-        self.ot_rate = StatRow(self, "OT Win Rate", columns=[('pct', 0)])
-        self.game_length = StatRow(self, "Avg Game Length", columns=[('time', 0)])
-        self.avg_opp_goals = StatRow(self, 'Avg Opp G/g', columns=[('float', 0.0)])
+        self.win_rate = StatRow(self, "Win Rate", columns=[('pct', 0), ('pct', 51)])
+        self.lead_conversion = StatRow(self, "Lead Conversion", columns=[('pct', 0), ('pct', 79)])
+        self.ot_rate = StatRow(self, "OT Win Rate", columns=[('pct', 0), ('pct', 51)])
+        self.game_length = StatRow(self, "Avg Game Length", columns=[('time', 0), ('time', 386)])
+        self.avg_opp_goals = StatRow(self, 'Avg Opp G/g', columns=[('float', 0.0), ('float', 2.66)])
         self.goal_differential = StatRow(self, "Goal Differential", columns=[('int', 0)])
-        self.save_rate = StatRow(self, 'Save Rate (saves / saves+goals)', columns=[('pct', 0)])
-        self.shooting_accuracy = StatRow(self, 'Shooting Accuracy', columns=[('pct', 0)])
-        self.assist_rate = StatRow(self, 'Assist Rate', columns=[('pct', 0)])
-        self.demo_ratio = StatRow(self, 'Demo Ratio', columns=[('float', 0.0)])
+        self.save_rate = StatRow(self, 'Save Rate (saves / saves+goals)', columns=[('pct', 0), ('pct', 64)])
+        self.shooting_accuracy = StatRow(self, 'Shooting Accuracy', columns=[('pct', 0), ('pct', 37)])
+        self.assist_rate = StatRow(self, 'Assist Rate', columns=[('pct', 0), ('pct', 45)])
+        self.demo_ratio = StatRow(self, 'Demo Ratio', columns=[('float', 0.0), ('float', 0.76)])
 
         for row in (
             self.win_rate,
@@ -74,13 +74,13 @@ class SessionStatsFrame(ctk.CTkFrame):
         demo_divisor = session_state.opp.demos or 1
         demo_ratio = team_demos / demo_divisor
 
-        self.win_rate.update(win_rate)
-        self.lead_conversion.update(lead_rate)
-        self.ot_rate.update(ot_rate)
-        self.game_length.update(session_state.avg_game_length)
-        self.avg_opp_goals.update(session_state.opp.goals / divisor)
+        self.win_rate.update(win_rate, 51)
+        self.lead_conversion.update(lead_rate, 79)
+        self.ot_rate.update(ot_rate, 51)
+        self.game_length.update(session_state.avg_game_length, 386)
+        self.avg_opp_goals.update(session_state.opp.goals / divisor, 2.66)
         self.goal_differential.update(goal_differential)
-        self.save_rate.update(save_rate)
-        self.shooting_accuracy.update(shooting_accuracy)
-        self.assist_rate.update(assist_rate)
-        self.demo_ratio.update(demo_ratio)
+        self.save_rate.update(save_rate, 64)
+        self.shooting_accuracy.update(shooting_accuracy, 37)
+        self.assist_rate.update(assist_rate, 45)
+        self.demo_ratio.update(demo_ratio, 0.76)
