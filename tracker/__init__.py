@@ -200,6 +200,9 @@ class RocketLeagueTracker:
  
 
     def toggle_model(self):
+        if not self.model:
+            return
+
         self.model_active = not self.model_active
 
 

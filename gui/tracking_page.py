@@ -1,6 +1,6 @@
 import customtkinter as ctk
 
-from tracker import GameState, SessionState
+from tracker import GameState, SessionState, RocketLeagueTracker
 from gui.frames.player_frame import PlayerFrame
 from gui.frames.score_frame import ScoreFrame
 from gui.frames.game_stats_frame import GameStatsFrame
@@ -8,6 +8,7 @@ from gui.frames.current_game_player_frame import CurrentGamePlayerFrame
 from gui.frames.session_mini_cards_frame import SessionMiniCardsFrame
 from gui.frames.session_stats_frame import SessionStatsFrame
 from gui.frames.session_latest_games_frame import SessionLatestGamesFrame
+from gui.frames.config import RED, GREEN
 
 
 class TrackingPage(ctk.CTkFrame):
@@ -70,6 +71,7 @@ class TrackingPage(ctk.CTkFrame):
 
     def update(
             self,
+            tracker: RocketLeagueTracker,
             game_state: GameState,
             session_state: SessionState
         ):
@@ -87,6 +89,15 @@ class TrackingPage(ctk.CTkFrame):
 
             if player_frame:
                 player_frame.update(player_stats, session_state)
+
+        # Update toggle model button - could be done in a separete model in future
+        if tracker.model:
+            if tracker.model_active:
+                self.model_button.configure(fg_color=GREEN)
+            else:
+                self.model_button.configure(fg_color=RED)
+        else:
+            self.model_button.configure(state='disabled')
 
 
 

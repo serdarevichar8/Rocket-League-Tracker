@@ -53,7 +53,7 @@ class App(ctk.CTk):
             self.message_queue.get()  # just draining the signal
 
             try:
-                self.tracking_page.update(self.tracker.game_state, self.tracker.session_state)
+                self.tracking_page.update(self.tracker, self.tracker.game_state, self.tracker.session_state)
             except Exception as e:
                 print(f"GUI update error: {e}")
 

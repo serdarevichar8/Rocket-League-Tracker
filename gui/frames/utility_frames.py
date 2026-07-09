@@ -74,8 +74,8 @@ class StatRow(ctk.CTkFrame):
                 minutes = value // 60
                 seconds = value % 60
 
-                if seconds == 0:
-                    text_label = f'{minutes}:00'
+                if seconds < 10:
+                    text_label = f'{minutes}:0{seconds}'
                 else:
                     text_label = f'{minutes}:{seconds}'
 
