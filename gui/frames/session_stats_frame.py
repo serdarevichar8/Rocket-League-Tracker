@@ -12,9 +12,13 @@ class SessionStatsFrame(ctk.CTkFrame):
 
         header_row = ctk.CTkFrame(self, fg_color="transparent")
         header_row.pack(fill="x", padx=12, pady=(10, 4))
-        # header_row.columnconfigure(0, weight=1)
+        header_row.columnconfigure(0, weight=1)
 
         ctk.CTkLabel(header_row, text="Session Stats", font=CARD_HEADING_FONT).grid(row=0, column=0, sticky="w")
+        ctk.CTkLabel(header_row, text="today", text_color="gray", font=("default", 11), anchor='center', width=40).grid(row=0, column=1)
+        ctk.CTkLabel(header_row, text="all-time", text_color="gray", font=("default", 11), anchor='center', width=40).grid(row=0, column=2)
+
+        # divider
         ctk.CTkFrame(self, height=1, fg_color="gray30").pack(fill="x", padx=12, pady=(0, 4))
 
         self.win_rate = StatRow(self, "Win Rate", columns=[('pct', 0), ('pct', 51)])
@@ -22,7 +26,7 @@ class SessionStatsFrame(ctk.CTkFrame):
         self.ot_rate = StatRow(self, "OT Win Rate", columns=[('pct', 0), ('pct', 51)])
         self.game_length = StatRow(self, "Avg Game Length", columns=[('time', 0), ('time', 386)])
         self.avg_opp_goals = StatRow(self, 'Avg Opp G/g', columns=[('float', 0.0), ('float', 2.66)])
-        self.goal_differential = StatRow(self, "Goal Differential", columns=[('int', 0)])
+        self.goal_differential = StatRow(self, "Goal Differential", columns=[('int', 0), ('int', 0)])
         self.save_rate = StatRow(self, 'Save Rate (saves / saves+goals)', columns=[('pct', 0), ('pct', 64)])
         self.shooting_accuracy = StatRow(self, 'Shooting Accuracy', columns=[('pct', 0), ('pct', 37)])
         self.assist_rate = StatRow(self, 'Assist Rate', columns=[('pct', 0), ('pct', 45)])
@@ -79,7 +83,7 @@ class SessionStatsFrame(ctk.CTkFrame):
         self.ot_rate.update(ot_rate, 51)
         self.game_length.update(session_state.avg_game_length, 386)
         self.avg_opp_goals.update(session_state.opp.goals / divisor, 2.66)
-        self.goal_differential.update(goal_differential)
+        self.goal_differential.update(goal_differential, 0)
         self.save_rate.update(save_rate, 64)
         self.shooting_accuracy.update(shooting_accuracy, 37)
         self.assist_rate.update(assist_rate, 45)
