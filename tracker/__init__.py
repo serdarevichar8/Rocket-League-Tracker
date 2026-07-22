@@ -1,5 +1,4 @@
 import os
-import pickle
 import socket
 import json
 import csv
@@ -13,6 +12,7 @@ from tracker.game_state import GameState
 from tracker.session_state import SessionState
 from tracker.config import HOST, PORT, BUFFER_SIZE, TRACKED_EVENTS, TRACKED_EVENT_NAMES
 from tracker.db import create_conn, initialize_schema, insert_event
+from tracker.model import connect_model, run_model, train_model
 
 class RocketLeagueTracker:
 
@@ -20,19 +20,7 @@ class RocketLeagueTracker:
         self.db = create_conn()
         initialize_schema(self.db)
 
-        self.model = None
-        self.model_active = False
-        if os.path.isfile('random_forest_model.pkl'):
-            with open('random_forest_model.pkl', 'rb') as f:
-                model = pickle.load(f)
-
-                if isinstance(model, RandomForestClassifier):
-                    self.model = model
-                    self.model_active = True
-
-                    print('Model loaded')
-
-
+        self.model, self.model_active = connect_model()
 
         self.queue = queue
 
@@ -40,6 +28,7 @@ class RocketLeagueTracker:
         self.game_states = []
         self.current_state = None
 
+        self.usernames = usernames
         self.game_state = GameState(usernames)
         self.games = []
 
@@ -175,35 +164,24 @@ class RocketLeagueTracker:
 
 
     def run_model(self):
-        if not self.model_active:
-            return
-        
-        if not self.model:
-            return
-        
-        X = [
-            self.game_state.team_goals,
-            sum(player.assists for player in self.game_state.players),
-            sum(player.saves for player in self.game_state.players),
-            sum(player.shots for player in self.game_state.players),
-            sum(player.demos for player in self.game_state.players),
-            self.game_state.opp.goals,
-            self.game_state.opp.assists,
-            self.game_state.opp.saves,
-            self.game_state.opp.shots,
-            self.game_state.opp.demos,
-            self.game_state.seconds_remaining
-        ]
+        if self.model and self.model_active:
+            win_prob = run_model(self.model, self.game_state)
 
-        win_prob = self.model.predict_proba([X])[0][1]
-        self.game_state.win_prob = int(win_prob * 100)
+            self.game_state.win_prob = win_prob
+            
+            if win_prob > self.game_state.max_win_prob:
+                self.game_state.max_win_prob = win_prob
+            elif win_prob < self.game_state.min_win_prob:
+                self.game_state.min_win_prob = win_prob
  
 
     def toggle_model(self):
-        if not self.model:
-            return
+        if self.model:
+            self.model_active = not self.model_active
 
-        self.model_active = not self.model_active
+
+    def save_model(self):
+        train_model(self.usernames)
 
 
     def save_csv(self, filename, sub_folder=True):
@@ -235,7 +213,7 @@ class RocketLeagueTracker:
 
         Drops the json into the `events_exports` directory.
         '''
-        payload = {"events": self.events, "gameStates": self.game_states}
+        payload = {"usernames": self.usernames, "events": self.events, "gameStates": self.game_states}
 
 
         folder_name = 'events_exports'
