@@ -43,6 +43,7 @@ class GameState:
         self.largest_deficit = 0
 
         self.win_prob = 50
+        self.win_probabilities: dict[int, int] = {300:50}
         self.max_win_prob = 50
         self.min_win_prob = 50
 
@@ -67,6 +68,7 @@ class GameState:
         self.largest_deficit = 0
 
         self.win_prob = 50
+        self.win_probabilities = {300:50}
         self.max_win_prob = 50
         self.min_win_prob = 50
 
@@ -130,6 +132,9 @@ class GameState:
                 if overtime_flag:
                     self.overtime = 1
 
+            self.min_win_prob = min(self.win_probabilities.values())
+            self.max_win_prob = max(self.win_probabilities.values())
+
         elif event_type == 'StatfeedEvent':
             self.opp.handle_event(event)
 
@@ -155,10 +160,8 @@ class GameState:
             if (self.team_goals > self.opp.goals) and (self.overtime == 0):
                 self.lead = 1
 
-            if self.win_prob > self.max_win_prob:
-                self.max_win_prob = self.win_prob
-            elif self.win_prob < self.min_win_prob:
-                self.min_win_prob = self.win_prob
+            self.min_win_prob = min(self.win_probabilities.values())
+            self.max_win_prob = max(self.win_probabilities.values())
 
 
         elif event_type == 'MatchEnded':

@@ -8,6 +8,19 @@ from tracker.game_state import GameState
 
 
 MODEL_FILENAME = 'random_forest_model.pkl'
+FEATURES = [
+    'team_goals',
+    'team_assists',
+    'team_saves',
+    'team_shots',
+    'team_demos',
+    'opp_goals',
+    'opp_assists',
+    'opp_saves',
+    'opp_shots',
+    'opp_demos',
+    'seconds_remaining'
+]
 
 
 def connect_model() -> tuple[RandomForestClassifier | None, bool]:
@@ -121,19 +134,7 @@ def train_model(usernames: list[str]) -> None:
         game['win'] = game_results.get(game.get('match_guid'))
 
 
-    features = [
-        'team_goals',
-        'team_assists',
-        'team_saves',
-        'team_shots',
-        'team_demos',
-        'opp_goals',
-        'opp_assists',
-        'opp_saves',
-        'opp_shots',
-        'opp_demos',
-        'seconds_remaining'
-    ]
+    
 
 
     # Manual train/test split by match guid
@@ -163,8 +164,8 @@ def train_model(usernames: list[str]) -> None:
 
     # Creation of X and y test/train arrays
     # Convert to numpy arrays to avoid column label warnings when predicting with model
-    X_train = [[game_snapshot[feature] for feature in features] for game_snapshot in train_snapshots]
-    X_test = [[game_snapshot[feature] for feature in features] for game_snapshot in test_snapshots]
+    X_train = [[game_snapshot[feature] for feature in FEATURES] for game_snapshot in train_snapshots]
+    X_test = [[game_snapshot[feature] for feature in FEATURES] for game_snapshot in test_snapshots]
 
     y_train = [game_snapshot['win'] for game_snapshot in train_snapshots]
     y_test = [game_snapshot['win'] for game_snapshot in test_snapshots]

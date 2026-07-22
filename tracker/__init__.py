@@ -124,13 +124,26 @@ class RocketLeagueTracker:
                 if event_name in TRACKED_EVENT_NAMES:
                     self.game_state.handle_event(data)
                     data['Seconds_Remaining'] = self.game_state.seconds_remaining
-                    self.run_model()
+                    # self.run_model()
 
                     self.events.append(data)
                     insert_event(self.db, data)
 
                     update_gui = True
                     print(f'Event: {event_name}')
+
+            elif event == 'ClockUpdatedSeconds':
+                self.game_state.handle_event(data)
+                data['Seconds_Remaining'] = self.game_state.seconds_remaining
+
+                if self.game_state.seconds_remaining % 2 == 1:
+                    self.run_model()
+
+                self.events.append(data)
+                insert_event(self.db, data)
+
+                update_gui = True
+                print(f'Event: {event} - Seconds Remaining {self.game_state.seconds_remaining}')
 
             else:
                 self.game_state.handle_event(data)
@@ -142,8 +155,6 @@ class RocketLeagueTracker:
                 update_gui = True
                 print(f'Event: {event}')
 
-            
-            
 
         # Additional check of when the match ends to append the current state to the game states and export GameState objects data
         if event == "MatchEnded":
@@ -168,11 +179,7 @@ class RocketLeagueTracker:
             win_prob = run_model(self.model, self.game_state)
 
             self.game_state.win_prob = win_prob
-            
-            if win_prob > self.game_state.max_win_prob:
-                self.game_state.max_win_prob = win_prob
-            elif win_prob < self.game_state.min_win_prob:
-                self.game_state.min_win_prob = win_prob
+            self.game_state.win_probabilities[self.game_state.seconds_remaining] = win_prob
  
 
     def toggle_model(self):
@@ -234,6 +241,8 @@ class RocketLeagueTracker:
         timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
         self.save_json(f"events-export-{timestamp}.json")
+
+        self.save_model()
 
         self.save_csv('export.csv', sub_folder=False)
         self.save_csv(f'games-export-{timestamp}.csv')
