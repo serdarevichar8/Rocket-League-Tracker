@@ -1,6 +1,6 @@
 from tracker import GameState
 
-from gui.frames.utility_frames import StatRow
+from gui.frames.utility_frames import StatRow, FrameHeader
 from gui.frames.config import CARD_COLOR, CARD_HEADING_FONT
 
 import customtkinter as ctk
@@ -10,8 +10,7 @@ class GameStatsFrame(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent, fg_color=CARD_COLOR)
 
-        ctk.CTkLabel(self, text="Game stats", font=CARD_HEADING_FONT).pack(anchor="w", padx=12, pady=(10, 4))
-        ctk.CTkFrame(self, height=1, fg_color="gray30").pack(fill="x", padx=12, pady=(0, 4))
+        FrameHeader(self, 'Game stats').auto_pack()
 
         self.largest_lead = StatRow(self, "Largest lead", columns=[('int', 0)])
         self.largest_deficit = StatRow(self, "Largest deficit", columns=[('int', 0)])

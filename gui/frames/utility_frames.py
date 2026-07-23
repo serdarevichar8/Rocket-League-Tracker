@@ -1,6 +1,25 @@
-from gui.frames.config import GREEN, RED, CARD_COLOR
+from gui.frames.config import GREEN, RED, CARD_COLOR, CARD_HEADING_FONT
 
 import customtkinter as ctk
+
+
+class FrameHeader(ctk.CTkFrame):
+    def __init__(self, parent, title: str, additional_columns: list = None):
+        super().__init__(parent, fg_color='transparent')
+        self.columnconfigure(0, weight=1)
+
+        self.title_label = ctk.CTkLabel(self, text=title, font=CARD_HEADING_FONT)
+        self.title_label.grid(row=0, column=0, sticky="w")
+
+        if additional_columns:
+            for index, column in enumerate(additional_columns):
+                ctk.CTkLabel(self, text=column, text_color="gray", font=("default", 11), anchor='center', width=40).grid(row=0, column=index+1)
+
+        self.divider = ctk.CTkFrame(parent, height=1, fg_color='gray30')
+    
+    def auto_pack(self):
+        self.pack(fill="x", padx=12, pady=(10, 4))
+        self.divider.pack(fill="x", padx=12, pady=(0, 4))
 
 
 class StatRow(ctk.CTkFrame):

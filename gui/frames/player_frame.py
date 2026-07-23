@@ -1,6 +1,6 @@
 from tracker import PlayerStats, SessionState
 
-from gui.frames.utility_frames import StatRow
+from gui.frames.utility_frames import StatRow, FrameHeader
 from gui.frames.config import CARD_COLOR, CARD_HEADING_FONT
 
 import customtkinter as ctk
@@ -13,17 +13,7 @@ class PlayerFrame(ctk.CTkFrame):
         self.username = username
 
         # header row
-        header_row = ctk.CTkFrame(self, fg_color="transparent")
-        header_row.pack(fill="x", padx=12, pady=(10, 4))
-        header_row.columnconfigure(0, weight=1)
-
-        ctk.CTkLabel(header_row, text=username, font=CARD_HEADING_FONT).grid(row=0, column=0, sticky="w")
-        ctk.CTkLabel(header_row, text="total", text_color="gray", font=("default", 11), anchor='center', width=40).grid(row=0, column=1)
-        # ctk.CTkLabel(header_row, text="/game", text_color="gray", font=("default", 11), anchor='center', width=40).grid(row=0, column=2, padx=(16, 0))
-        ctk.CTkLabel(header_row, text="/game", text_color="gray", font=("default", 11), anchor='center', width=40).grid(row=0, column=2)
-
-        # divider
-        ctk.CTkFrame(self, height=1, fg_color="gray30").pack(fill="x", padx=12, pady=(0, 4))
+        FrameHeader(self, username, additional_columns=['total', '/game']).auto_pack()
 
         # stat rows — each needs the same column widths
         self.goals_row   = StatRow(self, "Goals", columns=[('int', 0),('float', 0.0)])

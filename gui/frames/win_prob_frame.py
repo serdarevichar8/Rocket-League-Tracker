@@ -5,6 +5,7 @@ import customtkinter as ctk
 from tracker import GameState
 
 from gui.frames.config import CARD_COLOR, CARD_HEADING_FONT, RED
+from gui.frames.utility_frames import FrameHeader
 
 
 AXES_LABEL_FONT = ('default', 10)
@@ -16,8 +17,7 @@ class WinProbFrame(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent, fg_color=CARD_COLOR)
 
-        ctk.CTkLabel(self, text="Win Probability", font=CARD_HEADING_FONT).pack(anchor="w", padx=12, pady=(10, 4))
-        ctk.CTkFrame(self, height=1, fg_color="gray30").pack(fill="x", padx=12, pady=(0, 4))
+        FrameHeader(self, 'Win Probability').auto_pack()
 
         self.height = 150
         self.width = 320
