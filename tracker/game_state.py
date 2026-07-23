@@ -43,7 +43,7 @@ class GameState:
         self.largest_deficit = 0
 
         self.win_prob = 50
-        self.win_probabilities: dict[int, int] = {300:50}
+        self.win_probabilities: list[tuple[int, int]] = [(300, 50)]
         self.max_win_prob = 50
         self.min_win_prob = 50
 
@@ -68,7 +68,7 @@ class GameState:
         self.largest_deficit = 0
 
         self.win_prob = 50
-        self.win_probabilities = {300:50}
+        self.win_probabilities = [(300, 50)]
         self.max_win_prob = 50
         self.min_win_prob = 50
 
@@ -132,9 +132,6 @@ class GameState:
                 if overtime_flag:
                     self.overtime = 1
 
-            self.min_win_prob = min(self.win_probabilities.values())
-            self.max_win_prob = max(self.win_probabilities.values())
-
         elif event_type == 'StatfeedEvent':
             self.opp.handle_event(event)
 
@@ -159,10 +156,6 @@ class GameState:
             # Set the lead flag if the team goals are ever greater than opp goals AND it isn't overtime
             if (self.team_goals > self.opp.goals) and (self.overtime == 0):
                 self.lead = 1
-
-            self.min_win_prob = min(self.win_probabilities.values())
-            self.max_win_prob = max(self.win_probabilities.values())
-
 
         elif event_type == 'MatchEnded':
             self.game_end = datetime.strptime(event_timestamp, '%Y-%m-%d_%H-%M-%S')

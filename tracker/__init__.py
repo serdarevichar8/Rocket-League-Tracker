@@ -179,7 +179,8 @@ class RocketLeagueTracker:
             win_prob = run_model(self.model, self.game_state)
 
             self.game_state.win_prob = win_prob
-            self.game_state.win_probabilities[self.game_state.seconds_remaining] = win_prob
+            self.game_state.win_probabilities.append((self.game_state.seconds_remaining, win_prob))
+            # self.game_state.win_probabilities[self.game_state.seconds_remaining] = win_prob
  
 
     def toggle_model(self):

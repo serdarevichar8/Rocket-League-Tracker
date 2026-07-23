@@ -4,6 +4,7 @@ from tracker import GameState, SessionState, RocketLeagueTracker
 from gui.frames.player_frame import PlayerFrame
 from gui.frames.score_frame import ScoreFrame
 from gui.frames.game_stats_frame import GameStatsFrame
+from gui.frames.win_prob_frame import WinProbFrame
 from gui.frames.current_game_player_frame import CurrentGamePlayerFrame
 from gui.frames.session_mini_cards_frame import SessionMiniCardsFrame
 from gui.frames.session_stats_frame import SessionStatsFrame
@@ -45,6 +46,9 @@ class TrackingPage(ctk.CTkFrame):
         self.game_stats_frame = GameStatsFrame(self.game_col)
         self.game_stats_frame.pack(fill='x', padx=5, pady=5)
 
+        self.win_prob_frame = WinProbFrame(self.game_col)
+        self.win_prob_frame.pack(fill='x', padx=5, pady=5)
+
         self.current_game_player_frame = CurrentGamePlayerFrame(self.game_col, usernames)
         self.current_game_player_frame.pack(fill='x', padx=5, pady=5)
 
@@ -77,6 +81,7 @@ class TrackingPage(ctk.CTkFrame):
         ):
         self.score_frame.update(game_state)
         self.game_stats_frame.update(game_state)
+        self.win_prob_frame.update(game_state)
         self.current_game_player_frame.update(game_state)
 
         self.session_mini_cards_frame.update(session_state)
