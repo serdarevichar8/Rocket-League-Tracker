@@ -4,13 +4,13 @@ import customtkinter as ctk
 
 from tracker import GameState
 
-from gui.frames.config import CARD_COLOR, CARD_HEADING_FONT, RED
+from gui.frames.config import CARD_COLOR, CARD_HEADING_FONT, RED, GREEN
 from gui.frames.utility_frames import FrameHeader
 
 
 AXES_LABEL_FONT = ('default', 10)
 LIGHT_GREY = 'gray40'
-LINE_COLOR = RED
+LINE_COLOR = 'white'
 
 
 class WinProbFrame(ctk.CTkFrame):
@@ -21,7 +21,6 @@ class WinProbFrame(ctk.CTkFrame):
 
         self.height = 150
         self.width = 320
-        # self.pad = 20
         self.top_pad = 10
         self.bot_pad = 20
         self.left_pad = 20
@@ -65,9 +64,29 @@ class WinProbFrame(ctk.CTkFrame):
 
     def update(self, game_state: GameState):
         data = game_state.win_probabilities
+        events = game_state.game_events
 
         if len(data) >= 2:
             self.win_prob_canvas.delete('win_prob_line')
+
+            # For drawing lines for each goal event
+            self.win_prob_canvas.delete('event_line')
+
+            for seconds_remaining, event_type in events:
+                if event_type in ['Team Goal', 'Opp Goal']:
+                    event_coords = self.convert_coords(seconds_remaining, 0)
+                    fill_color = GREEN if event_type == 'Team Goal' else RED
+
+                    self.win_prob_canvas.create_line(
+                        event_coords[0],
+                        self.top_pad,
+                        event_coords[0],
+                        self.height - self.bot_pad,
+                        fill=fill_color,
+                        width=1,
+                        dash=(4, 2),
+                        tags='event_line'
+                    )
 
             for i in range(len(data) - 1):
                 curr_point = data[i]
@@ -76,4 +95,12 @@ class WinProbFrame(ctk.CTkFrame):
                 curr_coords = self.convert_coords(curr_point[0], curr_point[1])
                 next_coords = self.convert_coords(next_point[0], next_point[1])
 
-                self.win_prob_canvas.create_line(curr_coords[0], curr_coords[1], next_coords[0], next_coords[1], fill=LINE_COLOR, tags='win_prob_line')
+                self.win_prob_canvas.create_line(
+                    curr_coords[0],
+                    curr_coords[1],
+                    next_coords[0],
+                    next_coords[1],
+                    fill=LINE_COLOR,
+                    width=2,
+                    tags='win_prob_line'
+                )

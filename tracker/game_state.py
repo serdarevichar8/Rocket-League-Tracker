@@ -24,6 +24,8 @@ class GameState:
     - length: integer number of seconds between game start and end
     '''
     def __init__(self, player_usernames: list[str]):
+        self.usernames = player_usernames
+
         self.players: list[PlayerStats] = [PlayerStats(username) for username in player_usernames]
         self.opp: PlayerStats = PlayerStats('opp', opp_flag=True, usernames=player_usernames)
         
@@ -46,6 +48,8 @@ class GameState:
         self.win_probabilities: list[tuple[int, int]] = [(300, 50)]
         self.max_win_prob = 50
         self.min_win_prob = 50
+
+        self.game_events: list[tuple[int, str]] = []
 
 
     def reset(self):
@@ -71,6 +75,8 @@ class GameState:
         self.win_probabilities = [(300, 50)]
         self.max_win_prob = 50
         self.min_win_prob = 50
+
+        self.game_events = []
 
         for player in self.players:
             player.reset()
@@ -137,6 +143,12 @@ class GameState:
 
             for player in self.players:
                 player.handle_event(event)
+
+            if event.get('Data').get('EventName') == 'Goal':
+                if event.get('Data').get('MainTarget').get('Name') in self.usernames:
+                    self.game_events.append((self.seconds_remaining, 'Team Goal'))
+                else:
+                    self.game_events.append((self.seconds_remaining, 'Opp Goal'))
 
             # Set the team goals in each event
             self.team_goals = sum(player.goals for player in self.players)

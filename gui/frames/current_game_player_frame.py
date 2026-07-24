@@ -10,11 +10,11 @@ class CurrentGamePlayerFrame(ctk.CTkFrame):
     def __init__(self, parent, usernames: list[str]):
         super().__init__(parent, fg_color=CARD_COLOR)
 
-        FrameHeader(self, 'This game', additional_columns=['goals', 'saves', 'demos']).auto_pack()
+        FrameHeader(self, 'This game', additional_columns=['goals', 'assists', 'saves', 'shots', 'demos']).auto_pack()
 
         self.player_rows: dict[str, StatRow] = {}
         for username in usernames:
-            row = StatRow(self, username, columns=[('int', 0),('int', 0),('int', 0)])
+            row = StatRow(self, username, columns=[('int', 0),('int', 0),('int', 0),('int', 0),('int', 0)])
             row.pack(fill="x", padx=12, pady=2)
             self.player_rows[username] = row
 
@@ -24,4 +24,4 @@ class CurrentGamePlayerFrame(ctk.CTkFrame):
             if player.username in self.player_rows:
                 player_row = self.player_rows.get(player.username)
 
-                player_row.update(player.goals, player.saves, player.demos)
+                player_row.update(player.goals, player.assists, player.saves, player.shots, player.demos)
