@@ -4,12 +4,11 @@ import customtkinter as ctk
 
 from tracker import GameState
 
-from gui.frames.config import CARD_COLOR, CARD_HEADING_FONT, RED, GREEN
+from gui.frames.config import CARD_COLOR, CARD_HEADING_FONT, RED, GREEN, LIGHT_GREY
 from gui.frames.utility_frames import FrameHeader
 
 
 AXES_LABEL_FONT = ('default', 10)
-LIGHT_GREY = 'gray40'
 LINE_COLOR = 'white'
 
 

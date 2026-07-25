@@ -1,5 +1,9 @@
 RED = '#e77e7e'
 GREEN = '#88cc66'
+LIGHT_GREY = 'gray40'
 DARK_GRAY = 'gray90'
+BLUE = "#4371e7"
+YELLOW = "#deed54"
+ORANGE = "#eb9731"
 CARD_COLOR = "gray20"
 CARD_HEADING_FONT = ('default', 16, 'bold')

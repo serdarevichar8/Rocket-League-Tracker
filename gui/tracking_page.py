@@ -2,6 +2,7 @@ import customtkinter as ctk
 
 from tracker import GameState, SessionState, RocketLeagueTracker
 from gui.frames.player_frame import PlayerFrame
+from gui.frames.player_chart_frame import PlayerChartFrame
 from gui.frames.score_frame import ScoreFrame
 from gui.frames.game_stats_frame import GameStatsFrame
 from gui.frames.win_prob_frame import WinProbFrame
@@ -39,6 +40,9 @@ class TrackingPage(ctk.CTkFrame):
             player_frame.pack(fill='x', padx=5, pady=5)
 
             self.player_frames[username] = (player_frame)
+
+        self.player_chart_frame = PlayerChartFrame(self.player_col)
+        self.player_chart_frame.pack(fill='x', padx=5, pady=5)
 
         self.score_frame = ScoreFrame(self.game_col)
         self.score_frame.pack(fill='x', padx=5, pady=5)
@@ -79,6 +83,8 @@ class TrackingPage(ctk.CTkFrame):
             game_state: GameState,
             session_state: SessionState
         ):
+        self.player_chart_frame.update(session_state)
+
         self.score_frame.update(game_state)
         self.game_stats_frame.update(game_state)
         self.win_prob_frame.update(game_state)
