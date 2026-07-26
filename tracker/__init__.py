@@ -114,6 +114,7 @@ class RocketLeagueTracker:
             return
 
         update_gui = False
+        session_update = False
 
         # Check if the event is one that should be tracked, then append to list of events
         if event in TRACKED_EVENTS:
@@ -168,10 +169,13 @@ class RocketLeagueTracker:
                 self.game_states.append(self.current_state)
             self.current_state = None
 
+            session_update = True
             print(f"Game over. Total games: {len(self.session_state.games)}")
 
         if update_gui:
-            self.queue.put(True)
+            update_type = 'session' if session_update else 'game'
+            
+            self.queue.put(update_type)
 
 
     def run_model(self):

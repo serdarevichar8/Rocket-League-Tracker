@@ -76,30 +76,32 @@ class TrackingPage(ctk.CTkFrame):
 
     def update(
             self,
+            update_type: str,
             tracker: RocketLeagueTracker,
             game_state: GameState,
             session_state: SessionState
         ):
-        self.player_chart_frame.update(session_state)
-
+        # Update all game-based frames on every event
         self.score_frame.update(game_state)
         self.game_stats_frame.update(game_state)
         self.win_prob_frame.update(game_state, tracker)
         self.current_game_player_frame.update(game_state)
 
-        self.session_mini_cards_frame.update(session_state)
-        self.session_stats_frame.update(session_state)
-        self.session_latest_games_frame.update(session_state)
+        # Only update session-based frames if it was just after a MatchEnded event
+        if update_type == 'session':
+            self.player_chart_frame.update(session_state)
+            self.session_mini_cards_frame.update(session_state)
+            self.session_stats_frame.update(session_state)
+            self.session_latest_games_frame.update(session_state)
 
-        # Loop through the players in the GameState and find their corresponding PlayerFrame
-        for username, player_stats in session_state.players.items():
-            player_frame = self.player_frames.get(username)
+            # Loop through the players in the SessionState and find their corresponding PlayerFrame
+            for username, player_stats in session_state.players.items():
+                player_frame = self.player_frames.get(username)
 
-            if player_frame:
-                player_frame.update(player_stats, session_state)
+                if player_frame:
+                    player_frame.update(player_stats, session_state)
 
-
-
+        
 
 
 
