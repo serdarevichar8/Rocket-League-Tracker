@@ -1,16 +1,16 @@
 from tracker import GameState
 
 from gui.frames.config import CARD_COLOR, CARD_HEADING_FONT
-from gui.frames.utility_frames import FrameHeader
+from gui.frames.utility_frames import CustomFrame
 
 import customtkinter as ctk
 
 
-class ScoreFrame(ctk.CTkFrame):
+class ScoreFrame(CustomFrame):
     def __init__(self, parent):
-        super().__init__(parent, fg_color=CARD_COLOR)
+        super().__init__(parent, title='Score')
 
-        FrameHeader(self, 'Score').auto_pack()
+        # FrameHeader(self, 'Score').auto_pack()
 
         score_row = ctk.CTkFrame(self, fg_color="transparent")
         score_row.pack(pady=10)

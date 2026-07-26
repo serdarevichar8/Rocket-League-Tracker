@@ -50,7 +50,7 @@ class TrackingPage(ctk.CTkFrame):
         self.game_stats_frame = GameStatsFrame(self.game_col)
         self.game_stats_frame.pack(fill='x', padx=5, pady=5)
 
-        self.win_prob_frame = WinProbFrame(self.game_col)
+        self.win_prob_frame = WinProbFrame(self.game_col, on_toggle_model)
         self.win_prob_frame.pack(fill='x', padx=5, pady=5)
 
         self.current_game_player_frame = CurrentGamePlayerFrame(self.game_col, usernames)
@@ -70,9 +70,6 @@ class TrackingPage(ctk.CTkFrame):
         self.save_button.pack()
 
 
-        self.model_button = ctk.CTkButton(self.game_col, text='Toggle Model', command=on_toggle_model)
-        self.model_button.pack()
-
         # self.test_button = ctk.CTkButton(self.session_col, text='test', command=self.test_visual)
         # self.test_button.pack()
 
@@ -87,7 +84,7 @@ class TrackingPage(ctk.CTkFrame):
 
         self.score_frame.update(game_state)
         self.game_stats_frame.update(game_state)
-        self.win_prob_frame.update(game_state)
+        self.win_prob_frame.update(game_state, tracker)
         self.current_game_player_frame.update(game_state)
 
         self.session_mini_cards_frame.update(session_state)
@@ -100,15 +97,6 @@ class TrackingPage(ctk.CTkFrame):
 
             if player_frame:
                 player_frame.update(player_stats, session_state)
-
-        # Update toggle model button - could be done in a separete model in future
-        if tracker.model:
-            if tracker.model_active:
-                self.model_button.configure(fg_color=GREEN)
-            else:
-                self.model_button.configure(fg_color=RED)
-        else:
-            self.model_button.configure(state='disabled')
 
 
 

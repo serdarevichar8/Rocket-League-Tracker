@@ -2,21 +2,21 @@ import tkinter as tk
 
 import customtkinter as ctk
 
-from tracker import GameState
+from tracker import GameState, RocketLeagueTracker
 
 from gui.frames.config import CARD_COLOR, CARD_HEADING_FONT, RED, GREEN, LIGHT_GREY
-from gui.frames.utility_frames import FrameHeader
+from gui.frames.utility_frames import CustomFrame
 
 
 AXES_LABEL_FONT = ('default', 10)
 LINE_COLOR = 'white'
 
 
-class WinProbFrame(ctk.CTkFrame):
-    def __init__(self, parent):
-        super().__init__(parent, fg_color=CARD_COLOR)
+class WinProbFrame(CustomFrame):
+    def __init__(self, parent, on_toggle_model):
+        super().__init__(parent, title='Win Probability')
 
-        FrameHeader(self, 'Win Probability').auto_pack()
+        # FrameHeader(self, 'Win Probability').auto_pack()
 
         self.height = 150
         self.width = 320
@@ -28,6 +28,8 @@ class WinProbFrame(ctk.CTkFrame):
         self.win_prob_canvas = tk.Canvas(self, bg=CARD_COLOR, height=self.height, width=self.width, highlightthickness=0, borderwidth=0)
         self.win_prob_canvas.pack(padx=5, pady=5)
 
+        self.model_button = ctk.CTkButton(self, text='Toggle Model', command=on_toggle_model)
+        self.model_button.pack(padx=5, pady=5)
         
         # Create outer axes
         self.win_prob_canvas.create_rectangle(self.left_pad, self.top_pad, self.width - self.right_pad, self.height - self.bot_pad, outline=LIGHT_GREY)
@@ -61,9 +63,18 @@ class WinProbFrame(ctk.CTkFrame):
         return x_coord, y_coord
     
 
-    def update(self, game_state: GameState):
+    def update(self, game_state: GameState, tracker: RocketLeagueTracker):
         data = game_state.win_probabilities
         events = game_state.game_events
+
+        if tracker.model:
+            if tracker.model_active:
+                self.model_button.configure(fg_color=GREEN)
+            else:
+                self.model_button.configure(fg_color=RED)
+        else:
+            self.model_button.configure(state='disabled')
+
 
         if len(data) >= 2:
             self.win_prob_canvas.delete('win_prob_line')

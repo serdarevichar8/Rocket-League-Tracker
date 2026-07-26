@@ -1,16 +1,16 @@
 from tracker import SessionState
 
-from gui.frames.utility_frames import Square, FrameHeader
+from gui.frames.utility_frames import Square, CustomFrame
 from gui.frames.config import CARD_COLOR, CARD_HEADING_FONT
 
 import customtkinter as ctk
 
 
-class SessionLatestGamesFrame(ctk.CTkFrame):
+class SessionLatestGamesFrame(CustomFrame):
     def __init__(self, parent):
-        super().__init__(parent, fg_color=CARD_COLOR)
+        super().__init__(parent, title='Last 10 Games')
 
-        FrameHeader(self, 'Last 10 Games').auto_pack()
+        # FrameHeader(self, 'Last 10 Games').auto_pack()
 
         squares_row = ctk.CTkFrame(self, fg_color="transparent")
         squares_row.pack(pady=(10, 4))

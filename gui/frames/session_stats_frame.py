@@ -1,16 +1,16 @@
 from tracker import SessionState
 
-from gui.frames.utility_frames import StatRow, FrameHeader
+from gui.frames.utility_frames import CustomFrame, StatRow
 from gui.frames.config import CARD_COLOR
 
 import customtkinter as ctk
 
 
-class SessionStatsFrame(ctk.CTkFrame):
+class SessionStatsFrame(CustomFrame):
     def __init__(self, parent):
-        super().__init__(parent, fg_color=CARD_COLOR)
+        super().__init__(parent, title='Session Stats', additional_columns=['today', 'all-time'])
 
-        FrameHeader(self, 'Session Stats', additional_columns=['today', 'all-time']).auto_pack()
+        # FrameHeader(self, 'Session Stats', additional_columns=['today', 'all-time']).auto_pack()
 
         self.win_rate = StatRow(self, "Win Rate", columns=[('pct', 0), ('pct', 51)])
         self.lead_conversion = StatRow(self, "Lead Conversion", columns=[('pct', 0), ('pct', 79)])

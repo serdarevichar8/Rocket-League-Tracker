@@ -1,19 +1,19 @@
 from tracker import PlayerStats, SessionState
 
-from gui.frames.utility_frames import StatRow, FrameHeader
+from gui.frames.utility_frames import StatRow, CustomFrame
 from gui.frames.config import CARD_COLOR, CARD_HEADING_FONT
 
 import customtkinter as ctk
 
 
-class PlayerFrame(ctk.CTkFrame):
+class PlayerFrame(CustomFrame):
     def __init__(self, parent, username: str, opp=False):
-        super().__init__(parent, fg_color=CARD_COLOR)
+        super().__init__(parent, title=username, additional_columns=['total', '/game'])
 
         self.username = username
 
         # header row
-        FrameHeader(self, username, additional_columns=['total', '/game']).auto_pack()
+        # FrameHeader(self, username, additional_columns=['total', '/game']).auto_pack()
 
         # stat rows — each needs the same column widths
         self.goals_row   = StatRow(self, "Goals", columns=[('int', 0),('float', 0.0)])

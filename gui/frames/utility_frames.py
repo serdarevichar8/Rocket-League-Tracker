@@ -15,10 +15,21 @@ class FrameHeader(ctk.CTkFrame):
             for index, column in enumerate(additional_columns):
                 ctk.CTkLabel(self, text=column, text_color="gray", font=("default", 11), anchor='center', width=40).grid(row=0, column=index+1)
 
-        self.divider = ctk.CTkFrame(parent, height=1, fg_color='gray30')
+        # self.divider = ctk.CTkFrame(parent, height=1, fg_color='gray30')
     
     def auto_pack(self):
         self.pack(fill="x", padx=12, pady=(10, 4))
+        # self.divider.pack(fill="x", padx=12, pady=(0, 4))
+
+
+class CustomFrame(ctk.CTkFrame):
+    def __init__(self, parent, title: str, additional_columns: list = None):
+        super().__init__(parent, fg_color=CARD_COLOR)
+
+        self.header = FrameHeader(self, title, additional_columns=additional_columns)
+        self.header.pack(fill="x", padx=12, pady=(10, 4))
+
+        self.divider = ctk.CTkFrame(self, height=1, fg_color='gray30')
         self.divider.pack(fill="x", padx=12, pady=(0, 4))
 
 

@@ -5,14 +5,14 @@ import customtkinter as ctk
 from tracker import SessionState
 
 from gui.frames.config import CARD_COLOR, LIGHT_GREY, BLUE, ORANGE, YELLOW
-from gui.frames.utility_frames import FrameHeader
+from gui.frames.utility_frames import CustomFrame
 
 
-class PlayerChartFrame(ctk.CTkFrame):
+class PlayerChartFrame(CustomFrame):
     def __init__(self, parent):
-        super().__init__(parent, fg_color=CARD_COLOR)
+        super().__init__(parent, 'Player Comparison')
 
-        FrameHeader(self, 'Player Comparison').auto_pack()
+        # FrameHeader(self, 'Player Comparison').auto_pack()
 
         self.height = 200
         self.width = 280
