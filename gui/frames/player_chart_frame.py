@@ -45,7 +45,7 @@ class PlayerChartFrame(CustomFrame):
             self.bar_chart.create_text(
                 0,
                 y_2,
-                text=bar_name,
+                text=bar_name.capitalize(),
                 # justify='left',
                 anchor='w',
                 fill='gray'

@@ -8,7 +8,7 @@ import customtkinter as ctk
 
 class GameStatsFrame(CustomFrame):
     def __init__(self, parent):
-        super().__init__(parent, title='Game stats')
+        super().__init__(parent, title='Game Stats')
 
         # FrameHeader(self, 'Game stats').auto_pack()
 

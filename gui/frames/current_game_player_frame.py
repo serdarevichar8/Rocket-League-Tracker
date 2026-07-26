@@ -8,7 +8,7 @@ import customtkinter as ctk
 
 class CurrentGamePlayerFrame(CustomFrame):
     def __init__(self, parent, usernames: list[str]):
-        super().__init__(parent, title='This game', additional_columns=['goals', 'assists', 'saves', 'shots', 'demos'])
+        super().__init__(parent, title='This Game', additional_columns=['goals', 'assists', 'saves', 'shots', 'demos'])
 
         # FrameHeader(self, 'This game', additional_columns=['goals', 'assists', 'saves', 'shots', 'demos']).auto_pack()
 
