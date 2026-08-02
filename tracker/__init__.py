@@ -247,7 +247,7 @@ class RocketLeagueTracker:
 
         self.save_json(f"events-export-{timestamp}.json")
 
-        self.save_model()
-
         self.save_csv('export.csv', sub_folder=False)
         self.save_csv(f'games-export-{timestamp}.csv')
+
+        self.save_model()
