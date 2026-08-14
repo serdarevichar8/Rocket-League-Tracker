@@ -18,8 +18,8 @@ class WinProbFrame(CustomFrame):
 
         # FrameHeader(self, 'Win Probability').auto_pack()
 
-        self.height = 150
-        self.width = 320
+        self.height = 180
+        self.width = 400
         self.top_pad = 10
         self.bot_pad = 20
         self.left_pad = 20
@@ -41,16 +41,16 @@ class WinProbFrame(CustomFrame):
         self.win_prob_canvas.create_line(self.left_pad, mid_line_y, self.width - self.right_pad, mid_line_y, fill=LIGHT_GREY)
 
         # Create x-ticks
-        for x_tick in [300, 225, 150, 75, 0]:
+        for x_tick in [300, 240, 180, 120, 60, 0]:
             x, y = self.convert_coords(x_tick, 0)
 
-            self.win_prob_canvas.create_text(x, self.height - (self.bot_pad / 2), text=str(x_tick), font=AXES_LABEL_FONT)
+            self.win_prob_canvas.create_text(x, self.height - (self.bot_pad / 2), text=f'{x_tick // 60}:00', font=AXES_LABEL_FONT, fill='white')
 
         # Create y-ticks
         for y_tick in [0, 25, 50, 75, 100]:
             x, y = self.convert_coords(0, y_tick)
 
-            self.win_prob_canvas.create_text(self.left_pad / 2, y, text=str(y_tick), font=AXES_LABEL_FONT)
+            self.win_prob_canvas.create_text(self.left_pad / 2, y, text=str(y_tick), font=AXES_LABEL_FONT, fill='white')
 
 
     def convert_coords(self, x, y):

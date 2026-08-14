@@ -15,7 +15,7 @@ class PlayerChartFrame(CustomFrame):
         # FrameHeader(self, 'Player Comparison').auto_pack()
 
         self.height = 200
-        self.width = 280
+        self.width = 360
         self.top_pad = 5
         self.bot_pad = 5
         self.left_pad = 50

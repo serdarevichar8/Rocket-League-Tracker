@@ -16,7 +16,7 @@ class App(ctk.CTk):
         self.tracker = None
         
         self.title("RL Tracker")
-        self.geometry("1000x800")
+        self.geometry("1400x800")
 
         ctk.set_default_color_theme('green')
         ctk.set_appearance_mode("dark")

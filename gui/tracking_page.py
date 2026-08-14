@@ -10,6 +10,7 @@ from gui.frames.current_game_player_frame import CurrentGamePlayerFrame
 from gui.frames.session_mini_cards_frame import SessionMiniCardsFrame
 from gui.frames.session_stats_frame import SessionStatsFrame
 from gui.frames.session_latest_games_frame import SessionLatestGamesFrame
+# from gui.frames.game_list_frame import GameListFrame
 from gui.frames.config import RED, GREEN
 
 
@@ -64,6 +65,9 @@ class TrackingPage(ctk.CTkFrame):
 
         self.session_latest_games_frame = SessionLatestGamesFrame(self.session_col)
         self.session_latest_games_frame.pack(fill='x', padx=5, pady=5)
+
+        # self.game_list_frame = GameListFrame(self.session_col)
+        # self.game_list_frame.pack(fill='x', padx=5, pady=5)
 
 
         self.save_button = ctk.CTkButton(self.session_col, text='Save Data', command=on_save)
