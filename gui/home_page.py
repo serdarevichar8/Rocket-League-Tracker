@@ -35,7 +35,25 @@ class HomePage(ctk.CTkFrame):
                     button.pack(pady=10)
 
                     self.saved_players_buttons.append(button)
-                    
+
+        # self.previous_sessions = []
+        # self.previous_sessions_buttons = []
+        # # Load in previous session JSONs to resume a session
+        # if os.path.isdir('events_exports'):
+        #     # Load in events JSONs
+        #     events_jsons = [f'events_exports/{file}' for file in os.listdir('events_exports') if file.startswith('events-export-') and file.endswith('.json')]
+        #     events_jsons.sort(reverse=True)
+
+        #     events_jsons = events_jsons[:3]
+
+        #     for event in events_jsons:
+        #         event_timestamp = event[29:-5]
+
+        #         button = ctk.CTkButton(self, text=event_timestamp)
+        #         button.pack(pady=10)
+
+        #         self.previous_sessions_buttons.append(button)
+            
 
     def load_players(self, usernames):
         print(usernames)

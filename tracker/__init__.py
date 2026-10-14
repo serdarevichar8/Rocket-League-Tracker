@@ -35,6 +35,15 @@ class RocketLeagueTracker:
         self.session_state = SessionState(usernames)
 
 
+    def load_session(self, events_json: dict[str, list[dict]]):
+        usernames = events_json.get('usernames')
+        events = events_json.get('events')
+        game_states = events_json.get('gameStates')
+
+        for event in events:
+            self.handle_message(event)
+
+
 
     def connect(self):
         '''
@@ -99,6 +108,10 @@ class RocketLeagueTracker:
         '''
         event = data.get("Event")
         data['Timestamp'] = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
+        # If no timestamp yet exists, apply one
+        # if not data.get('Timestamp'):
+        #     data['Timestamp'] = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
         # Convert the Data into an actual json/dict rather than string version
         # Checks first if the Data json exists and if it's in string form to decode
