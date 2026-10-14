@@ -1,0 +1,5 @@
+- [ ] Separate model for 1s, 2s, 3s
+- [ ] Scrollable frame of games, ability to delete games
+- [ ] Previous game stats
+- [ ] Middle line in player comp bar chart
+- [ ] Allow session continue by selecting a previous JSON
