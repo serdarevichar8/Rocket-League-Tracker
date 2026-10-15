@@ -22,15 +22,17 @@ class SessionState:
         self.games: list[dict[str]] = []
 
 
-    def update(self, game_state: GameState):
-        self.wins = sum(1 for game in self.games if game.get('win') == 1)
-        self.losses = sum(1 for game in self.games if game.get('win') == 0)
-        self.leads = sum(game.get('lead') for game in self.games)
+    def update(self, game_state: GameState, game_data: dict[str]):
+        new_games = self.games + [game_data]
 
-        self.ot_wins = sum(1 for game in self.games if game.get('win') == 1 and game.get('overtime') == 1)
-        self.ot_losses = sum(1 for game in self.games if game.get('win') == 0 and game.get('overtime') == 1)
+        self.wins = sum(1 for game in new_games if game.get('win') == 1)
+        self.losses = sum(1 for game in new_games if game.get('win') == 0)
+        self.leads = sum(game.get('lead') for game in new_games)
 
-        self.avg_game_length = int(mean(game.get('length') for game in self.games))
+        self.ot_wins = sum(1 for game in new_games if game.get('win') == 1 and game.get('overtime') == 1)
+        self.ot_losses = sum(1 for game in new_games if game.get('win') == 0 and game.get('overtime') == 1)
+
+        self.avg_game_length = int(mean(game.get('length') for game in new_games))
 
         for player in  game_state.players:
             username = player.username
@@ -52,14 +54,18 @@ class SessionState:
 
         streak = 0
 
-        if len(self.games) > 0:
-            games = self.games[::-1]
-            last_result = games[0].get('win')
+        if len(new_games) > 0:
+            reversed_games = new_games[::-1]
+            last_result = reversed_games[0].get('win')
 
-            for game in games:
+            for game in reversed_games:
                 if last_result == game.get('win'):
                     streak += 1
                 else:
                     break
         
         self.streak = streak if last_result == 1 else -streak
+
+        game_data['streak'] = self.streak
+        game_data['game_in_session'] = len(new_games)
+        self.games.append(game_data)

@@ -124,6 +124,8 @@ class RocketLeagueTracker:
         # If the event is an update state, dont save immediately but save it to current state
         if event == "UpdateState":
             self.current_state = data
+            self.game_state.handle_event(data)
+            
             return
 
         update_gui = False
@@ -175,8 +177,8 @@ class RocketLeagueTracker:
             game_data = self.game_state.export()
             # self.games.append(game_data)
 
-            self.session_state.games.append(game_data)
-            self.session_state.update(self.game_state)
+            # self.session_state.games.append(game_data)
+            self.session_state.update(self.game_state, game_data)
 
             if self.current_state:
                 self.game_states.append(self.current_state)

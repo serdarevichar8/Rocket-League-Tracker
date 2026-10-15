@@ -10,6 +10,8 @@ class PlayerStats:
         self.saves = 0
         self.shots = 0
         self.demos = 0
+        self.score = 0
+        self.touches = 0
 
     def add_goal(self):
         self.goals += 1
@@ -28,6 +30,16 @@ class PlayerStats:
 
     def handle_event(self, event: dict):
         matched = False
+
+        if event.get('Event') == 'UpdateState':
+            if event.get('Data'):
+                players: list[dict] = event.get('Data').get('Players')
+
+                for player in players:
+                    if player.get('Name') == self.username:
+                        self.score = player.get('Score')
+                        self.touches = player.get('Touches')
+            return matched
 
         if event.get('Event') != 'StatfeedEvent':
             return matched
@@ -70,6 +82,8 @@ class PlayerStats:
             f'{self.username}_saves':self.saves,
             f'{self.username}_shots':self.shots,
             f'{self.username}_demos':self.demos,
+            f'{self.username}_score':self.score,
+            f'{self.username}_touches':self.touches,
         }
 
     def reset(self):
@@ -78,6 +92,8 @@ class PlayerStats:
         self.saves = 0
         self.shots = 0
         self.demos = 0
+        self.score = 0
+        self.touches = 0
 
     def __eq__(self, other):
         if not isinstance(other, PlayerStats):

@@ -181,3 +181,7 @@ class GameState:
             # game_data = self.export()
 
             # return game_data
+
+        elif event_type == 'UpdateState':
+            for player in self.players:
+                player.handle_event(event)
