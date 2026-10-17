@@ -45,6 +45,8 @@ class SessionState:
                 player_session.saves += player.saves
                 player_session.shots += player.shots
                 player_session.demos += player.demos
+                player_session.score += player.score
+                player_session.touches += player.touches
         
         self.opp.goals += game_state.opp.goals
         self.opp.assists += game_state.opp.assists

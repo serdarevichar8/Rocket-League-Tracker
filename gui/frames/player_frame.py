@@ -21,8 +21,10 @@ class PlayerFrame(CustomFrame):
         self.saves_row   = StatRow(self, "Saves", columns=[('int', 0),('float', 0.0)])
         self.shots_row   = StatRow(self, "Shots", columns=[('int', 0),('float', 0.0)])
         self.demos_row   = StatRow(self, "Demos", columns=[('int', 0),('float', 0.0)])
+        self.score_row   = StatRow(self, 'Score', columns=[('int', 0),('float', 0.0)])
+        self.touches_row   = StatRow(self, 'Touches', columns=[('int', 0),('float', 0.0)])
 
-        for row in (self.goals_row, self.assists_row, self.saves_row, self.shots_row, self.demos_row):
+        for row in (self.goals_row, self.assists_row, self.saves_row, self.shots_row, self.demos_row, self.score_row, self.touches_row):
             row.pack(fill="x", padx=12, pady=2)
 
     def update(self, player_stats: PlayerStats, session_state: SessionState):
@@ -34,3 +36,5 @@ class PlayerFrame(CustomFrame):
         self.saves_row.update(player_stats.saves, player_stats.saves / divisor)
         self.shots_row.update(player_stats.shots, player_stats.shots / divisor)
         self.demos_row.update(player_stats.demos, player_stats.demos / divisor)
+        self.score_row.update(player_stats.score, player_stats.score / divisor)
+        self.touches_row.update(player_stats.touches, player_stats.touches / divisor)
