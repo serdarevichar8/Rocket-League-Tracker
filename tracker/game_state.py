@@ -50,6 +50,7 @@ class GameState:
         self.min_win_prob = 50
 
         self.game_events: list[tuple[int, str]] = []
+        self.kickoff_goals = 0
 
 
     def reset(self):
@@ -77,6 +78,7 @@ class GameState:
         self.min_win_prob = 50
 
         self.game_events = []
+        self.kickoff_goals = 0
 
         for player in self.players:
             player.reset()
@@ -145,7 +147,18 @@ class GameState:
                 player.handle_event(event)
 
             if event.get('Data').get('EventName') == 'Goal':
+                # Find the last goal (if exists) to determine how long since the last goal
+                last_goal_scored = 300
+                if self.game_events:
+                    last_goal_scored, team = self.game_events[-1]
+                # If negative time (overtime), track since that kickoff
+                if self.seconds_remaining < 0:
+                    last_goal_scored = 0
+
                 if event.get('Data').get('MainTarget').get('Name') in self.usernames:
+                    # If current goal was scored within 10 sec of previous, add kickoff goal
+                    if last_goal_scored - self.seconds_remaining <= 10:
+                        self.kickoff_goals += 1
                     self.game_events.append((self.seconds_remaining, 'Team Goal'))
                 else:
                     self.game_events.append((self.seconds_remaining, 'Opp Goal'))

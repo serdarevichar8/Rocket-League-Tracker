@@ -21,7 +21,8 @@ class SessionStatsFrame(CustomFrame):
         self.save_rate = StatRow(self, 'Save Rate (saves / saves+goals)', columns=[('pct', 0), ('pct', 64)])
         self.shooting_accuracy = StatRow(self, 'Shooting Accuracy', columns=[('pct', 0), ('pct', 37)])
         self.assist_rate = StatRow(self, 'Assist Rate', columns=[('pct', 0), ('pct', 45)])
-        self.demo_ratio = StatRow(self, 'Demo Ratio', columns=[('float', 0.0), ('float', 0.76)])
+        self.demo_ratio = StatRow(self, 'Demo Ratio', columns=[('float', 0.0), ('float', 1.02)])
+        self.kickoff_goals = StatRow(self, "Kickoff Goal Rate", columns=[('pct', 0), ('pct', 20)])
 
         for row in (
             self.win_rate,
@@ -34,6 +35,7 @@ class SessionStatsFrame(CustomFrame):
             self.shooting_accuracy,
             self.assist_rate,
             self.demo_ratio,
+            self.kickoff_goals,
         ):
             row.pack(fill="x", padx=12, pady=2)
 
@@ -69,6 +71,8 @@ class SessionStatsFrame(CustomFrame):
         demo_divisor = session_state.opp.demos or 1
         demo_ratio = team_demos / demo_divisor
 
+        kickoff_goals = int(session_state.kickoff_goals / assist_divisor * 100)
+
         self.win_rate.update(win_rate, 51)
         self.lead_conversion.update(lead_rate, 79)
         self.ot_rate.update(ot_rate, 51)
@@ -78,4 +82,5 @@ class SessionStatsFrame(CustomFrame):
         self.save_rate.update(save_rate, 64)
         self.shooting_accuracy.update(shooting_accuracy, 37)
         self.assist_rate.update(assist_rate, 45)
-        self.demo_ratio.update(demo_ratio, 0.76)
+        self.demo_ratio.update(demo_ratio, 1.02)
+        self.kickoff_goals.update(kickoff_goals, 20)

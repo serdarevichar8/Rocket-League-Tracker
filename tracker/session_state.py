@@ -18,6 +18,7 @@ class SessionState:
         self.ot_losses: int = 0
 
         self.avg_game_length: int = 0
+        self.kickoff_goals: int = 0
 
         self.games: list[dict[str]] = []
 
@@ -33,6 +34,7 @@ class SessionState:
         self.ot_losses = sum(1 for game in new_games if game.get('win') == 0 and game.get('overtime') == 1)
 
         self.avg_game_length = int(mean(game.get('length') for game in new_games))
+        self.kickoff_goals += game_state.kickoff_goals
 
         for player in  game_state.players:
             username = player.username
